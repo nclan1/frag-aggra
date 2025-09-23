@@ -1,12 +1,43 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"os"
+
+	"github.com/joho/godotenv"
+	"github.com/openai/openai-go/v2"
+	"github.com/openai/openai-go/v2/option"
+)
 
 func main() {
 
-	// Example listing text
-	sample_listing := "Just looking to sell, No trades. Shipping included in price. All with boxes.\n\nTester D&G light blue edt 125ml 90% 33$\n\nMaison Asrar DXP 95/100ml 30$\n\nBundled: 55 shipped\n\nIf your looking to add on I have 2.5ml decants of\n\nLayton $6\n\nBIR Extradose $5\n\nDior homme sport $5\n\nMyself edp $5\n\nPayPal G&S only\n\nhttps://imgur.com/a/cpoVx0j\n\nDecants:\n\nhttps://imgur.com/a/J6aEMmb"
+	_ = godotenv.Load()
 
-	fmt.Println(sample_listing)
+	productInfo := `Le Labo (Clear-Label Testers w/ Caps)
 
+    Another 13 100ml - $230
+    Another 13 50ml - $155
+    Jasmin 17 100ml - $200
+    Citron 28 50ml - $210
+    Fleur D'Oranger 27 50ml - $130
+    Le Labo Lys 41 50ml - $130
+
+Payment Methods: Zelle & Venmo
+FREE SHIPPING ON ALL BOTTLES
+
+https://imgur.com/a/T5TfKZI`
+	println(productInfo)
+	client := openai.NewClient(
+		option.WithAPIKey(os.Getenv("OPENAI_API_KEY")), // defaults to os.LookupEnv("OPENAI_API_KEY")
+	)
+	chatCompletion, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.UserMessage("Say this is a test"),
+		},
+		Model: openai.ChatModelGPT4o,
+	})
+	if err != nil {
+		panic(err.Error())
+	}
+	println(chatCompletion.Choices[0].Message.Content)
 }
