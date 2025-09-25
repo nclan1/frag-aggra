@@ -27,6 +27,11 @@ go.work.sum
 # env file
 .env
 
+pgdata/
+
+
 # Editor/IDE
+.github/
+
 # .idea/
 # .vscode/
