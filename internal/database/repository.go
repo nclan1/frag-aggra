@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 )
@@ -26,12 +27,26 @@ func New(ctx context.Context, connString string) (*Repository, error) {
 	return &Repository{dbpool: pool}, nil
 }
 
+// Close closes the database connection pool.
 func (r *Repository) Close() {
 	if r != nil && r.dbpool != nil {
 		r.dbpool.Close()
 	}
 }
 
+// querying example
+func (r *Repository) QueryRows(ctx context.Context, query string, args ...any) (pgx.Rows, error) {
+	if r.dbpool == nil {
+		return nil, fmt.Errorf("database pool is not initialized")
+	}
+	rows, err := r.dbpool.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	return rows, nil
+}
+
+// Ping checks if the database connection is alive.
 func (r *Repository) Ping(ctx context.Context) error {
 	if r.dbpool == nil {
 		return fmt.Errorf("database pool is not initialized")

@@ -5,6 +5,7 @@ import (
 	"frag-aggra/internal/database"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -45,6 +46,7 @@ func main() {
 	//		}
 	//	}
 
+	// Create database connection
 	ctx := context.Background()
 	dbURL := os.Getenv("DATABASE_URL")
 	repo, err := database.New(ctx, dbURL)
@@ -59,8 +61,29 @@ func main() {
 		log.Fatalf("failed to ping database: %v", err)
 	}
 	log.Println("Database connection verified")
-
 	defer repo.Close()
+
+	//query listing
+	rows, err := repo.QueryRows(ctx, "SELECT * from listings")
+	if err != nil {
+		log.Fatalf("failed to query listings: %v", err)
+	}
+	defer rows.Close()
+
+	log.Println("Listings:")
+	for rows.Next() {
+		var id int
+		var post_id string
+		var name string
+		var size string
+		var price string
+		var created_at time.Time
+		if err := rows.Scan(&id, &post_id, &name, &size, &price, &created_at); err != nil {
+			log.Fatalf("failed to scan row: %v", err)
+		}
+		log.Printf("ID: %d, Post ID: %s, Name: %s, Size: %s, Price: %s, Created At: %s\n", id, post_id, name, size, price, created_at.Format(time.RFC3339))
+	}
+
 }
 
 // func buildConnString() string {
