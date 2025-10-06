@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"frag-aggra/internal/models"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -44,6 +45,12 @@ func (r *Repository) QueryRows(ctx context.Context, query string, args ...any) (
 		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 	return rows, nil
+}
+
+func (r *Repository) InsertItem(ctx context.Context, post models.Post, listing models.FragranceListing) error {
+	if r.dbpool == nil {
+		return
+	}
 }
 
 // Ping checks if the database connection is alive.

@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"frag-aggra/internal/database"
+	"frag-aggra/internal/parser"
 	"frag-aggra/internal/scraper"
 	"log"
 	"os"
@@ -17,19 +19,6 @@ func main() {
 	// 	if err != nil {
 	// 		log.Fatalf("failed to create parser: %v", err)
 	// 	}
-
-	// 	redditPost := `Hi
-	// Prices include shipping
-	// Cashapp, Venmo, PayPal F&F
-	// No trades
-	// All are testers
-	// Le Labo Santal 33 50/50ml - $130
-	// SOLD Le Labo The Noir 29 50/50ml - $130
-	// SOLD Le Labo Another 13 50/50ml - $130
-	// SOLD Diptyque L'Ombre Dans L'Eau EDP 75/75ml - $120
-	// Diptyque Eau de 34 95/100ml - $100
-	// SOLD Diptyque Tam Dao EDP 75/75ml - $140
-	// SOLD Diptyque Tempo EDP 75/75ml - $140`
 
 	// 	fmt.Println("Parsing Reddit post content...")
 	// 	listing, err := p.ParsePostContent(context.Background(), redditPost)
@@ -68,7 +57,37 @@ func main() {
 		log.Fatalf("failed to initialize reddit scraper: %v", err)
 	}
 
-	scraper.FetchPost("fragranceswap")
+	job_postings, err := scraper.FetchPost("fragranceswap")
+	if err != nil {
+		log.Fatalf("failed to fetch posts: %v", err)
+	}
+
+	raw_input := job_postings[0].Body
+
+	p, err := parser.New()
+	if err != nil {
+		log.Fatalf("failed to create parser: %v", err)
+	}
+
+	// Parse the post content
+	parsed_listing, err := p.ParsePostContent(context.Background(), raw_input)
+	if err != nil {
+		log.Fatalf("failed to parse post content: %v", err)
+	}
+	fmt.Println("\nPARSED OUTPUT:")
+	for _, perfume := range parsed_listing.Perfumes {
+		fmt.Printf("Name: %s\n", perfume.Name)
+		for i, size := range perfume.Sizes {
+			price := perfume.Prices[i]
+			fmt.Printf("  Size: %s - Price: %s\n", size, price)
+		}
+	}
+
+	// fmt.Println("Parsing Reddit post content...")
+	// listing, err := p.ParsePostContent(context.Background(), redditPost)
+	// if err != nil {
+	// 	log.Fatalf("failed to parse post content: %v", err)
+	// }
 
 	//query listing
 	// rows, err := repo.QueryRows(ctx, "SELECT * from listings")

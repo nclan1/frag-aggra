@@ -11,3 +11,13 @@ type Perfume struct {
 type FragranceListing struct {
 	Perfumes []Perfume `json:"perfumes" jsonschema_description:"A list of all perfumes found in the sale listing."`
 }
+
+// post raw data to pass into parser
+
+type Post struct {
+	PostID         string `json:"post_id"`
+	URL            string `json:"url"`
+	Title          string `json:"title"`
+	Body           string `json:"body"` // The raw text to be sent to the LLM
+	SellerUsername string `json:"seller_username"`
+}

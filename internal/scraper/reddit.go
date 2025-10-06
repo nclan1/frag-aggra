@@ -2,7 +2,7 @@ package scraper
 
 import (
 	"context"
-	"fmt"
+	"frag-aggra/internal/models"
 	"os"
 
 	"github.com/vartanbeno/go-reddit/v2/reddit"
@@ -31,21 +31,30 @@ func New() (*RedditScraper, error) {
 	}, nil
 }
 
-func (r *RedditScraper) FetchPost(subreddit string) error {
+func (r *RedditScraper) FetchPost(subreddit string) ([]models.Post, error) {
 
 	posts, _, err := r.client.Subreddit.NewPosts(context.Background(), subreddit, &reddit.ListOptions{
-		Limit: 5,
+		Limit: 1,
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	var job_postings []models.Post
 	for _, post := range posts {
-		fmt.Printf("Title: %s\n", post.Title)
-		fmt.Printf("URL: https://www.reddit.com%s\n\n", post.Permalink)
+		job_posting := models.Post{
+			PostID:         post.ID,
+			URL:            post.URL,
+			Title:          post.Title,
+			Body:           post.Body,
+			SellerUsername: post.Author,
+		}
+
+		//TODO: go through, figure out which posts have already been processed by calling the database
+		job_postings = append(job_postings, job_posting)
 	}
 
-	return nil
+	return job_postings, nil
 
 }
