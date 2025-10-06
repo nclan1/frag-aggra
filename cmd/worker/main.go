@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"frag-aggra/internal/database"
+	"frag-aggra/internal/scraper"
 	"log"
 	"os"
-	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -63,26 +63,33 @@ func main() {
 	log.Println("Database connection verified")
 	defer repo.Close()
 
-	//query listing
-	rows, err := repo.QueryRows(ctx, "SELECT * from listings")
+	scraper, err := scraper.New()
 	if err != nil {
-		log.Fatalf("failed to query listings: %v", err)
+		log.Fatalf("failed to initialize reddit scraper: %v", err)
 	}
-	defer rows.Close()
 
-	log.Println("Listings:")
-	for rows.Next() {
-		var id int
-		var post_id string
-		var name string
-		var size string
-		var price string
-		var created_at time.Time
-		if err := rows.Scan(&id, &post_id, &name, &size, &price, &created_at); err != nil {
-			log.Fatalf("failed to scan row: %v", err)
-		}
-		log.Printf("ID: %d, Post ID: %s, Name: %s, Size: %s, Price: %s, Created At: %s\n", id, post_id, name, size, price, created_at.Format(time.RFC3339))
-	}
+	scraper.FetchPost("fragranceswap")
+
+	//query listing
+	// rows, err := repo.QueryRows(ctx, "SELECT * from listings")
+	// if err != nil {
+	// 	log.Fatalf("failed to query listings: %v", err)
+	// }
+	// defer rows.Close()
+
+	// log.Println("Listings:")
+	// for rows.Next() {
+	// 	var id int
+	// 	var post_id string
+	// 	var name string
+	// 	var size string
+	// 	var price string
+	// 	var created_at time.Time
+	// 	if err := rows.Scan(&id, &post_id, &name, &size, &price, &created_at); err != nil {
+	// 		log.Fatalf("failed to scan row: %v", err)
+	// 	}
+	// 	log.Printf("ID: %d, Post ID: %s, Name: %s, Size: %s, Price: %s, Created At: %s\n", id, post_id, name, size, price, created_at.Format(time.RFC3339))
+	// }
 
 }
 

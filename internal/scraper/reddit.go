@@ -1,6 +1,8 @@
 package scraper
 
 import (
+	"context"
+	"fmt"
 	"os"
 
 	"github.com/vartanbeno/go-reddit/v2/reddit"
@@ -29,6 +31,21 @@ func New() (*RedditScraper, error) {
 	}, nil
 }
 
-func (r *RedditScraper) FetchPost(subreddit string) {
+func (r *RedditScraper) FetchPost(subreddit string) error {
+
+	posts, _, err := r.client.Subreddit.NewPosts(context.Background(), subreddit, &reddit.ListOptions{
+		Limit: 5,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	for _, post := range posts {
+		fmt.Printf("Title: %s\n", post.Title)
+		fmt.Printf("URL: https://www.reddit.com%s\n\n", post.Permalink)
+	}
+
+	return nil
 
 }
