@@ -1,37 +1,38 @@
 # FragranceSwap Aggregator (frag-aggra)
 
-A distributed system written in Go that automatically scrapes, parses, and aggregates fragrance sale listings from the `r/fragranceswap` subreddit into a structured, queryable database.
+a distributed system written in Go that automatically scrapes, parses, and aggregates fragrance sale listings from the `r/fragranceswap` subreddit into a structured, queryable database.
 
-## Core Problem
+## core problem
 
-Listings on `r/fragranceswap` are unstructured, user-generated text, making it difficult to track what's for sale, by whom, and for how much. Traditional parsing methods like regex are too brittle to handle the wide variety of post formats.
+i want to find perfumes to buy aftermarket or get decants. Best source is `r/fragranceswap`. Manually going through each listing and searching for the best price size ratio is tedious, hard to track what's for sale and how much it cost. Parsing method for regex is too brittle for the wide variety of post formats. 
 
-This project solves the problem by using an LLM (via the OpenAI API) to perform intelligent data extraction, converting messy text into clean, structured JSON that can be stored and analyzed.
+this project aims to solve it by building a platform to store a live running database that uses an LLM (via whatever is cheapest llm provider lol, rn using OpenAI) to extract data converting it into a structures JSON. 
 
-## Features
 
-- **Automated Scraping:** A Go service continuously monitors `r/fragranceswap` for new sale posts.
-- **Intelligent Parsing:** Leverages the OpenAI API with a strict JSON schema to extract perfume names, sizes, and prices from raw post text.
-- **Data Persistence:** Stores structured data in a PostgreSQL database.
-- **Distributed Architecture:** A decoupled system where scrapers (producers) and parsers (consumers) communicate via a message queue.
+## in progress features...
 
-## System Architecture
+- **automated scraping (in prog):** go service continuously monitors `r/fragranceswap` for new sale posts.
+- **intelligent parsing (need some tweaking in prompt):** use an LLM API with a strict JSON schema to extract perfume names, sizes, and prices from raw post text.
+- **data persistence:** stores structured data in a PostgreSQL database.
+- **distributed architecture (in prog):** decoupled system where scrapers (producers) and parsers (consumers) communicate via a message queue.
 
-The system is designed using a producer-consumer pattern to ensure scalability and resilience.
+## system architecture
 
-`[Scraper Service] -> [RabbitMQ Message Queue] -> [Worker Service(s)] -> [PostgreSQL Database]`
+producer consumer 
 
-1.  **Scraper:** Polls the Reddit API, finds new sale posts, and publishes a `ParsingJob` to the RabbitMQ queue.
-2.  **Worker:** Consumes jobs from the queue, sends the post content to the OpenAI API for parsing, and saves the structured result to the PostgreSQL database.
+`[scraper service] -> [RabbitMQ message queue] -> [worker service(s)] -> [postgresql database]`
+
+1.  **scraper:** polls the reddit api, finds new sale posts, and publishes a `ParsingJob` to the rabbitmq queue. (again, in progress, no rabbitmq yet)
+2.  **worker:** consumes jobs from the queue, sends the post content to the openai api for parsing, and saves the structured result to the postgresql database.
 
 ## Technology Stack
 
-- **Language:** Go
-- **Data Extraction:** OpenAI API (GPT-4o)
-- **Database:** PostgreSQL (with `pgx` driver)
-- **Message Queue:** RabbitMQ (Planned)
-- **Containerization:** Docker & Docker Compose
-- **Reddit API Wrapper:** `go-reddit/v2`
+- **language:** go
+- **data extraction:** gpt-4o
+- **database:** psql (with `pgx` driver)
+- **message qeue:** rabbitmq (planned)
+- **containerization:** docker & docker compose
+- **reddit api wrapper:** `go-reddit/v2`
 
 ## Getting Started
 
@@ -42,61 +43,16 @@ The system is designed using a producer-consumer pattern to ensure scalability a
 - An OpenAI API key
 - Reddit API credentials (Client ID, Secret, Username, Password)
 
-### Setup
+### setup
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repo-url>
-    cd frag-aggra
-    ```
-
-2.  **Create an environment file:**
-    Create a `.env` file in the root of the project by copying the example below. Fill in your own credentials.
-
-    ```ini
-    # .env.example
-    # OpenAI
-    OPENAI_API_KEY="sk-..."
-
-    # Reddit API Credentials
-    REDDIT_CLIENT_ID="..."
-    REDDIT_CLIENT_SECRET="..."
-    REDDIT_USERNAME="..."
-    REDDIT_PASSWORD="..."
-
-    # PostgreSQL Connection
-    DATABASE_URL="postgresql://postgres:mysecurepassword@localhost:5432/fragrance_database"
-    POSTGRES_PASSWORD="mysecurepassword" # Must match the password in docker-compose.yml
-    ```
-
-3.  **Start the database:**
-    ```bash
-    docker-compose up -d
-    ```
-
-4.  **Run database migrations:**
-    You will need a migration tool like `golang-migrate` to apply the schema.
-    ```bash
-    migrate -path migrations -database "$DATABASE_URL" up
-    ```
-
-### Running the Services
-
--   **Run the Worker:**
-    ```bash
-    go run ./cmd/worker/main.go
-    ```
--   **Run the Scraper (once created):**
-    ```bash
-    go run ./cmd/scraper/main.go
-    ```
+(not yet)
 
 ## Project Structure
 
--   `cmd/`: Contains the entry points for the different services (worker, scraper, api).
--   `internal/`: Contains all the core application logic, which is not meant to be imported by other projects.
-    -   `database/`: Handles all communication with the PostgreSQL database.
-    -   `parser/`: Manages the interaction with the OpenAI API.
-    -   `scraper/`: Contains the logic for fetching data from Reddit.
--   `migrations/`: Holds the SQL files for database schema migrations.
--   `docker-compose.yml`: Defines the development environment services (Postgres, RabbitMQ).
+-   `cmd/`: contains the entry points for the different services (worker, scraper, api).
+-   `internal/`: contains all the core application logic, which is not meant to be imported by other projects.
+    -   `database/`: handles all communication with the postgresql database.
+    -   `parser/`: manages the interaction with the openai api.
+    -   `scraper/`: contains the logic for fetching data from reddit.
+-   `migrations/`: Holds the sql files for database schema migrations.
+-   `docker-compose.yml`: defines the development environment services (postgresql, rabbitmq).
