@@ -4,9 +4,12 @@ import (
 	"context"
 	"frag-aggra/internal/models"
 	"os"
+	"regexp"
 
 	"github.com/vartanbeno/go-reddit/v2/reddit"
 )
+
+var wtsRe = regexp.MustCompile(`(?i)\[wts\]`)
 
 type RedditScraper struct {
 	client *reddit.Client
@@ -34,7 +37,7 @@ func New() (*RedditScraper, error) {
 func (r *RedditScraper) FetchPost(subreddit string) ([]models.Post, error) {
 
 	posts, _, err := r.client.Subreddit.NewPosts(context.Background(), subreddit, &reddit.ListOptions{
-		Limit: 1,
+		Limit: 25,
 	})
 
 	if err != nil {
@@ -43,6 +46,12 @@ func (r *RedditScraper) FetchPost(subreddit string) ([]models.Post, error) {
 
 	var job_postings []models.Post
 	for _, post := range posts {
+
+		// only include posts that contain [WTS] (case-insensitive) in title or body
+		if !containsWTS(post.Title) && !containsWTS(post.Body) {
+			continue
+		}
+
 		job_posting := models.Post{
 			PostID:         post.ID,
 			URL:            post.URL,
@@ -57,4 +66,8 @@ func (r *RedditScraper) FetchPost(subreddit string) ([]models.Post, error) {
 
 	return job_postings, nil
 
+}
+
+func containsWTS(s string) bool {
+	return wtsRe.MatchString(s)
 }

@@ -49,8 +49,49 @@ func (r *Repository) QueryRows(ctx context.Context, query string, args ...any) (
 
 func (r *Repository) InsertItem(ctx context.Context, post models.Post, listing models.FragranceListing) error {
 	if r.dbpool == nil {
-		return
+		return fmt.Errorf("database pool is not initialized")
 	}
+	tx, err := r.dbpool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	//if not committed, rollback
+	defer tx.Rollback(ctx)
+	// get the unique postID to act as foreign key
+	var postID int64
+
+	postInsertQuery := `
+		INSERT INTO posts (reddit_id, url, seller_username)
+		VALUES ($1, $2, $3)
+		ON CONFLICT (reddit_id) DO UPDATE SET
+			url = EXCLUDED.url,
+			seller_username = EXCLUDED.seller_username
+		RETURNING id
+	`
+	err = tx.QueryRow(ctx, postInsertQuery, post.PostID, post.URL, post.SellerUsername).Scan(&postID)
+	if err != nil {
+		return fmt.Errorf("failed to insert post: %w", err)
+	}
+
+	rows := [][]any{}
+	for _, perfume := range listing.Perfumes {
+		for i, size := range perfume.Sizes {
+			price := perfume.Prices[i]
+			rows = append(rows, []any{postID, perfume.Name, size, price})
+		}
+	}
+
+	_, err = tx.CopyFrom(
+		ctx,
+		pgx.Identifier{"listings"},
+		[]string{"post_id", "name", "size", "price"},
+		pgx.CopyFromRows(rows),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to copy from rows: %w", err)
+	}
+
+	return tx.Commit(ctx)
 }
 
 // Ping checks if the database connection is alive.
