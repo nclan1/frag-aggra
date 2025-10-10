@@ -37,7 +37,7 @@ func New() (*RedditScraper, error) {
 func (r *RedditScraper) FetchPost(subreddit string) ([]models.Post, error) {
 
 	posts, _, err := r.client.Subreddit.NewPosts(context.Background(), subreddit, &reddit.ListOptions{
-		Limit: 25,
+		Limit: 10,
 	})
 
 	if err != nil {

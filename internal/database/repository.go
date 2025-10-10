@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"frag-aggra/internal/models"
+	"log"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -75,10 +76,22 @@ func (r *Repository) InsertItem(ctx context.Context, post models.Post, listing m
 
 	rows := [][]any{}
 	for _, perfume := range listing.Perfumes {
+		//iterate through the sizes
 		for i, size := range perfume.Sizes {
+			if i >= len(perfume.Prices) {
+				// Log the inconsistency and break the inner loop for this perfume.
+				// This prevents the panic and safely skips the corrupted data.
+				log.Printf("warning: mismatched sizes and prices for perfume '%s'. Sizes: %d, Prices: %d. Skipping remaining items.", perfume.Name, len(perfume.Sizes), len(perfume.Prices))
+				break
+			}
 			price := perfume.Prices[i]
 			rows = append(rows, []any{postID, perfume.Name, size, price})
 		}
+	}
+
+	if len(rows) == 0 {
+		log.Printf("No valid listing found to insert %s", post.URL)
+		return tx.Commit(ctx)
 	}
 
 	_, err = tx.CopyFrom(
