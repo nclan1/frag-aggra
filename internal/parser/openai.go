@@ -50,6 +50,11 @@ func New() (*Parser, error) {
     * For partial bottles, always use the 'X/Yml' format (e.g., "80/100ml").
     * For decants or full bottles, use the format 'Xml' (e.g., "10ml", "100ml").
     * Ensure the "ml" suffix is always present.
+	* BNIB or bnib means "Brand New In Box" and should not affect size formatting.
+
+4.  **Name Accuracy:**
+	* Extract the full perfume name as accurately as possible.
+	* If the name is abbreviated or contains typos, correct it based on common fragrance knowledge.
 
 **Handling Edge Cases:**
 
