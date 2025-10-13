@@ -2,7 +2,9 @@ package scraper
 
 import (
 	"context"
+	"frag-aggra/internal/database"
 	"frag-aggra/internal/models"
+	"log"
 	"os"
 	"regexp"
 
@@ -34,7 +36,7 @@ func New() (*RedditScraper, error) {
 	}, nil
 }
 
-func (r *RedditScraper) FetchPost(subreddit string) ([]models.Post, error) {
+func (r *RedditScraper) FetchPost(subreddit string, repo database.Repository) ([]models.Post, error) {
 
 	posts, _, err := r.client.Subreddit.NewPosts(context.Background(), subreddit, &reddit.ListOptions{
 		Limit: 10,
@@ -49,6 +51,18 @@ func (r *RedditScraper) FetchPost(subreddit string) ([]models.Post, error) {
 
 		// only include posts that contain [WTS] (case-insensitive) in title or body
 		if !containsWTS(post.Title) && !containsWTS(post.Body) {
+			continue
+		}
+
+		//grab post_id first
+		exists, err := repo.PostExists(context.Background(), post.ID)
+		if err != nil {
+			//log error but continue processing other posts
+			log.Printf("Error checking post existence for ID %s: %v", post.ID, err)
+			continue
+		}
+		if exists {
+			log.Printf("Skipping already seen post with ID %s", post.ID)
 			continue
 		}
 
