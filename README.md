@@ -47,6 +47,35 @@ producer consumer
 
 (not yet)
 
+## Testing
+
+The project includes comprehensive unit tests for all packages.
+
+### Run all tests
+```bash
+go test ./...
+```
+
+### Run tests with coverage
+```bash
+go test ./... -coverprofile=coverage.out
+go tool cover -html=coverage.out -o coverage.html
+```
+
+### Run tests for a specific package
+```bash
+go test ./internal/parser/... -v
+go test ./internal/scraper/... -v
+go test ./internal/database/... -v
+go test ./internal/models/... -v
+```
+
+### Current Test Coverage
+- **Parser**: 75.0% - Tests for OpenAI API integration, JSON parsing, and error handling
+- **Scraper**: 31.2% - Tests for WTS filtering (100% on containsWTS function)
+- **Database**: 27.9% - Tests for error handling and nil pool checks
+- **Models**: 100% - Tests for JSON serialization/deserialization
+
 ## Project Structure
 
 -   `cmd/`: contains the entry points for the different services (worker, scraper, api).
