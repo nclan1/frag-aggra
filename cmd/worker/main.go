@@ -87,7 +87,3 @@ func main() {
 	}
 
 }
-
-// func buildConnString() string {
-
-// }

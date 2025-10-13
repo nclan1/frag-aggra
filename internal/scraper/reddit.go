@@ -74,7 +74,6 @@ func (r *RedditScraper) FetchPost(subreddit string, repo database.Repository) ([
 			SellerUsername: post.Author,
 		}
 
-		//TODO: go through, figure out which posts have already been processed by calling the database
 		job_postings = append(job_postings, job_posting)
 	}
 
