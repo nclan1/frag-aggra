@@ -31,7 +31,9 @@ pgdata/
 
 
 # Editor/IDE
-.github/
+# Note: .github/workflows should be tracked for CI/CD
+.github/copilot/
+.github/agents/
 
 # .idea/
 # .vscode/
