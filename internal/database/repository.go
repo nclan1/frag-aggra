@@ -36,6 +36,19 @@ func (r *Repository) Close() {
 	}
 }
 
+func (r *Repository) PostExists(ctx context.Context, redditID string) (bool, error) {
+	if r.dbpool == nil {
+		return false, fmt.Errorf("database pool is not initialized")
+	}
+	var exists bool
+	query := `SELECT EXISTS(SELECT 1 FROM posts WHERE reddit_id=$1)`
+	err := r.dbpool.QueryRow(ctx, query, redditID).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("failed to check post existence: %w", err)
+	}
+	return exists, nil
+}
+
 // querying example
 func (r *Repository) QueryRows(ctx context.Context, query string, args ...any) (pgx.Rows, error) {
 	if r.dbpool == nil {

@@ -38,7 +38,7 @@ func main() {
 		log.Fatalf("failed to initialize reddit scraper: %v", err)
 	}
 
-	job_postings, err := scraper.FetchPost("fragranceswap")
+	job_postings, err := scraper.FetchPost("fragranceswap", *repo)
 	if err != nil {
 		log.Fatalf("failed to fetch posts: %v", err)
 	}
