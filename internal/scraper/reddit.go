@@ -36,10 +36,14 @@ func New() (*RedditScraper, error) {
 	}, nil
 }
 
-func (r *RedditScraper) FetchPost(subreddit string, repo database.Repository) ([]models.Post, error) {
+func (r *RedditScraper) FetchPost(subreddit string, repo database.Repository, limit int) ([]models.Post, error) {
+
+	if limit <= 0 {
+		limit = 10
+	}
 
 	posts, _, err := r.client.Subreddit.NewPosts(context.Background(), subreddit, &reddit.ListOptions{
-		Limit: 10,
+		Limit: limit,
 	})
 
 	if err != nil {
