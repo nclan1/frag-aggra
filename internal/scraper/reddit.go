@@ -36,21 +36,27 @@ func New() (*RedditScraper, error) {
 	}, nil
 }
 
-func (r *RedditScraper) FetchPost(subreddit string, repo database.Repository) ([]models.Post, error) {
+func (r *RedditScraper) FetchPost(subreddit string, repo database.Repository, limit int) ([]models.Post, error) {
+
+	if limit <= 0 {
+		limit = 5
+	}
 
 	posts, _, err := r.client.Subreddit.NewPosts(context.Background(), subreddit, &reddit.ListOptions{
-		Limit: 10,
+		Limit: limit,
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
+	log.Print("Grabbing ", limit, " posts")
 	var job_postings []models.Post
 	for _, post := range posts {
 
 		// only include posts that contain [WTS] (case-insensitive) in title or body
 		if !containsWTS(post.Title) && !containsWTS(post.Body) {
+			log.Printf("Skipping post %s without [WTS] in title or body", post.ID)
 			continue
 		}
 
