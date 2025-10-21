@@ -8,6 +8,7 @@ import (
 	"frag-aggra/internal/scraper"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -19,6 +20,18 @@ func main() {
 	// Create database connection
 	ctx := context.Background()
 	dbURL := os.Getenv("DATABASE_URL")
+
+	limit := os.Getenv("REDDIT_FETCH_LIMIT")
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		log.Printf("invalid REDDIT_FETCH_LIMIT %q, defaulting to 5: %v", limit, err)
+		limitInt = 5
+	}
+	if limitInt <= 0 || limitInt > 100 {
+		log.Printf("REDDIT_FETCH_LIMIT %d out of range [1, 100], defaulting to 5", limitInt)
+		limitInt = 5
+	}
+
 	repo, err := database.New(ctx, dbURL)
 	if err != nil {
 		log.Fatalf("failed to create repository: %v", err)
@@ -38,7 +51,7 @@ func main() {
 		log.Fatalf("failed to initialize reddit scraper: %v", err)
 	}
 
-	job_postings, err := scraper.FetchPost("fragranceswap", *repo)
+	job_postings, err := scraper.FetchPost("fragranceswap", *repo, limitInt)
 	if err != nil {
 		log.Fatalf("failed to fetch posts: %v", err)
 	}
