@@ -2,7 +2,6 @@ package scraper
 
 import (
 	"context"
-	"frag-aggra/internal/database"
 	"frag-aggra/internal/models"
 	"log"
 	"os"
@@ -36,7 +35,7 @@ func New() (*RedditScraper, error) {
 	}, nil
 }
 
-func (r *RedditScraper) FetchPost(subreddit string, repo database.Repository, limit int) ([]models.Post, error) {
+func (r *RedditScraper) FetchPost(subreddit string, limit int) ([]models.Post, error) {
 
 	if limit <= 0 {
 		limit = 5
@@ -61,16 +60,6 @@ func (r *RedditScraper) FetchPost(subreddit string, repo database.Repository, li
 		}
 
 		//grab post_id first
-		exists, err := repo.PostExists(context.Background(), post.ID)
-		if err != nil {
-			//log error but continue processing other posts
-			log.Printf("Error checking post existence for ID %s: %v", post.ID, err)
-			continue
-		}
-		if exists {
-			log.Printf("Skipping already seen post with ID %s", post.ID)
-			continue
-		}
 
 		job_posting := models.Post{
 			PostID:         post.ID,
