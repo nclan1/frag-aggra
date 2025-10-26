@@ -76,6 +76,19 @@ func (r *RedditScraper) FetchPost(subreddit string, limit int) ([]models.Post, e
 
 }
 
-func containsWTS(s string) bool {
+func (r *RedditScraper) FetchPaginatedPosts(ctx context.Context, subreddit string, limit int, afterToken string) ([]*reddit.Post, error) {
+
+	posts, _, err := r.client.Subreddit.NewPosts(ctx, subreddit, &reddit.ListOptions{
+		Limit: limit,
+		After: afterToken,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
+
+}
+
+func (r *RedditScraper) ContainsWTS(s string) bool {
 	return wtsRe.MatchString(s)
 }

@@ -49,6 +49,8 @@ func (r *RabbitMQClient) Close() {
 	}
 }
 
+
+//Calling publish on this for the scraper service
 func (r *RabbitMQClient) Publish2JSON[T any] (exchange, key string, val T, ctx context.Context) error {
 	body, err := json.Marshal(val)
 	if err != nil {
