@@ -16,8 +16,6 @@ func main() {
 
 	// TODO: needs to connect to RabbitMQ, set up here
 
-	// TODO: set up a ticking timer for x amount of seconds that loops.
-
 	pollInterval := 5 * time.Minute
 	ticker := time.NewTicker(pollInterval)
 
