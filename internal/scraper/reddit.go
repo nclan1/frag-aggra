@@ -58,7 +58,6 @@ func (r *RedditScraper) FetchPost(subreddit string, limit int) ([]models.Post, e
 			log.Printf("Skipping post %s without [WTS] in title or body", post.ID)
 			continue
 		}
-
 		//grab post_id first
 
 		job_posting := models.Post{

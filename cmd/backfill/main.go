@@ -4,6 +4,7 @@ import (
 	"context"
 	"frag-aggra/internal/models"
 	"frag-aggra/internal/pubsub"
+	"frag-aggra/internal/routing"
 	"frag-aggra/internal/scraper"
 	"log"
 	"os"
@@ -17,6 +18,7 @@ func main() {
 
 	log.Println("Starting one-time backfill job...")
 
+	//grabbing all the environment variables
 	_ = godotenv.Load()
 	ctx := context.Background()
 	rmqUrl := os.Getenv("RABBITMQ_URL")
@@ -36,13 +38,57 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to init reddit scraper: %v", err)
 	}
-	// Possible TODO: defer close the scraper, look at the documentation.
 
+	// Possible TODO: defer close the scraper, look at the documentation.
 	rmq, err := pubsub.New(rmqUrl)
 	if err != nil {
 		log.Fatalf("Failed to innit RabbitMQ Client: %v", err)
 	}
 	defer rmq.Close()
+
+	// TODO: set the exchange and key to be environment variable
+	exchange := routing.ExchangePostDirect
+	key := routing.PostKey
+	queue := routing.PostQueue
+
+	// declare the exchange
+	// safe to do indempotently
+	err = rmq.Channel.ExchangeDeclare(
+		exchange, //name
+		"direct", //type
+		true,     // durability
+		false,    // autoDelete
+		false,    // internal?
+		false,    //no wait
+		nil,
+	)
+	if err != nil {
+		log.Printf("Error declaring the exchange: %v", err)
+	}
+
+	//declare the queue
+	q, err := rmq.Channel.QueueDeclare(
+		queue, //queue name
+		true,  //durable
+		false, //delete when unused
+		false, //exclusive
+		false, //nowait
+		nil,
+	)
+	if err != nil {
+		log.Fatalf("Failed to declare queue: %v", err)
+	}
+
+	//Bind the queue
+	err = rmq.Channel.QueueBind(
+		q.Name,
+		key,
+		exchange,
+		false, nil,
+	)
+	if err != nil {
+		log.Fatalf("Failed to bind queue with exchange: %v", err)
+	}
 
 	// jobPostings, err := scraper.FetchPost("fragranceswap", *repo, limitInt)
 	// if err != nil {
@@ -113,6 +159,7 @@ func main() {
 		if hitCutoffDate {
 			break
 		}
+		// afterToken used as the achor point.
 		afterToken = posts[len(posts)-1].ID
 		log.Printf("Published %d jobs so far. Sleeping for 2s...", totalPublished)
 		time.Sleep(2 * time.Second) // Being nice to Reddit's API
