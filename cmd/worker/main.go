@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"frag-aggra/internal/database"
+	"frag-aggra/internal/models"
+	"frag-aggra/internal/parser"
 	"frag-aggra/internal/pubsub"
 	"frag-aggra/internal/routing"
 	"log"
@@ -39,11 +41,11 @@ func main() {
 	defer repo.Close()
 
 	log.Printf("Initializing the parser...")
-	// p, err := parser.New()
-	// if err != nil {
-	// 	log.Fatalf("failed to create parser: %v", err)
-	// }
-	// log.Println("Parser created successfully")
+	p, err := parser.New()
+	if err != nil {
+		log.Fatalf("failed to create parser: %v", err)
+	}
+	log.Println("Parser created successfully")
 
 	// connect to the rabbitmq
 	log.Print("Connecting to RabbitMQ...")
@@ -72,17 +74,47 @@ func main() {
 
 	msgs, err := rmq.ConsumeFromClient(q.Name)
 	if err != nil {
-		log.Fatalf("Error consuming and getting channel", err)
+		log.Fatalf("Error consuming and getting channel")
 	}
+	for msg := range msgs {
+		// msg := <-msgs
+		jsonStr := string(msg.Body)
+		var post models.Post
+		if err := json.Unmarshal([]byte(jsonStr), &post); err != nil {
+			log.Printf("bad json: %v", err)
+			msg.Nack(false, false) //drop, dont requeu garbage
+			continue
+		}
+		// for _, post := range job_postings {
+		raw_input := post.Title + "\n" + post.Body
+		log.Printf("Post Title: %s\n", post.Title)
+		log.Printf("Post URL: %s\n", post.URL)
+		log.Printf("Post id: %s\n", post.PostID)
+		log.Printf("Parsing Reddit post content...")
 
-	d := <-msgs
-	fmt.Printf("body: %s\n", d.Body)
-
-	// for _, post := range job_postings {
-	// 	raw_input := post.Title + "\n" + post.Body
-	// 	log.Printf("Post Title: %s\n", post.Title)
-	// 	log.Printf("Post URL: %s\n", post.URL)
-	// 	fmt.Println("Parsing Reddit post content...")
+		exists, err := repo.PostExists(ctx, post.PostID)
+		if err != nil {
+			log.Printf("Error checking existence")
+		}
+		if !exists {
+			parsed_listing, err := p.ParsePostContent(context.Background(), raw_input)
+			if err != nil {
+				log.Printf("failed to parse post content: %v", err)
+				msg.Nack(false, true) // re-queue
+				continue
+			}
+			if parsed_listing == nil {
+				log.Printf("parser returned nil for post %s", post.PostID)
+				msg.Nack(false, true)
+				continue
+			}
+			repo.InsertItem(ctx, post, *parsed_listing)
+			log.Printf("Finished parsing post %s", post.PostID)
+		} else {
+			log.Printf("Already seen, skipping")
+		}
+		msg.Ack(false)
+	}
 
 	// 	//todo: before parsing, check if post already exists in db by postID
 	// 	//...if exists, skip
