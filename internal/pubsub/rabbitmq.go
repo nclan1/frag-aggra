@@ -49,6 +49,20 @@ func (r *RabbitMQClient) Close() {
 	}
 }
 
+func (r *RabbitMQClient) ConsumeFromClient(q string) (<-chan amqp.Delivery, error) {
+
+	msgs, err := r.Channel.Consume(
+		q,     // queue
+		"",    // consumer tag (empty for auto-generation)
+		false, // auto-ack
+		false, // exclusive
+		false, // no-local
+		false, // no-wait
+		nil,   // arguments
+	)
+	return msgs, err
+}
+
 // Calling publish on this for the scraper service
 func (r *RabbitMQClient) Publish2JSON(exchange, key string, val any, ctx context.Context) error {
 	body, err := json.Marshal(val)

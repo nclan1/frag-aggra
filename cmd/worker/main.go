@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"frag-aggra/internal/database"
-	"frag-aggra/internal/parser"
+	"frag-aggra/internal/pubsub"
+	"frag-aggra/internal/routing"
 	"log"
 	"os"
 
@@ -16,6 +18,11 @@ func main() {
 	// Create database connection
 	ctx := context.Background()
 	dbURL := os.Getenv("DATABASE_URL")
+
+	rmqUrl := os.Getenv("RABBITMQ_URL")
+	if rmqUrl == "" {
+		log.Fatal("RABBITMQ_URL not set")
+	}
 
 	repo, err := database.New(ctx, dbURL)
 	if err != nil {
@@ -31,10 +38,45 @@ func main() {
 	log.Println("Database connection verified")
 	defer repo.Close()
 
-	p, err := parser.New()
+	log.Printf("Initializing the parser...")
+	// p, err := parser.New()
+	// if err != nil {
+	// 	log.Fatalf("failed to create parser: %v", err)
+	// }
+	// log.Println("Parser created successfully")
+
+	// connect to the rabbitmq
+	log.Print("Connecting to RabbitMQ...")
+	rmq, err := pubsub.New(rmqUrl)
 	if err != nil {
-		log.Fatalf("failed to create parser: %v", err)
+		log.Fatalf("Failed to innit RabbitMQ Client: %v", err)
 	}
+	log.Print("RabbitMQ connection established")
+	defer rmq.Close()
+
+	queue := routing.PostQueue
+	//declare the queue
+	q, err := rmq.Channel.QueueDeclare(
+		queue, //queue name
+		true,  //durable
+		false, //delete when unused
+		false, //exclusive
+		false, //nowait
+		nil,
+	)
+	if err != nil {
+		log.Fatalf("Failed to declare queue: %v", err)
+	}
+
+	log.Printf("Grabbing 1 post from queue in rabbitmq")
+
+	msgs, err := rmq.ConsumeFromClient(q.Name)
+	if err != nil {
+		log.Fatalf("Error consuming and getting channel", err)
+	}
+
+	d := <-msgs
+	fmt.Printf("body: %s\n", d.Body)
 
 	// for _, post := range job_postings {
 	// 	raw_input := post.Title + "\n" + post.Body

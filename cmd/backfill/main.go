@@ -49,7 +49,6 @@ func main() {
 	}
 
 	// Possible TODO: defer close the scraper, look at the documentation.
-	log.Print(rmqUrl)
 
 	//get the rabbitmq client
 	rmq, err := pubsub.New(rmqUrl)
