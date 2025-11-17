@@ -49,23 +49,22 @@ func (r *RabbitMQClient) Close() {
 	}
 }
 
-
-//Calling publish on this for the scraper service
-func (r *RabbitMQClient) Publish2JSON[T any] (exchange, key string, val T, ctx context.Context) error {
+// Calling publish on this for the scraper service
+func (r *RabbitMQClient) Publish2JSON(exchange, key string, val any, ctx context.Context) error {
 	body, err := json.Marshal(val)
 	if err != nil {
 		return err
 	}
 	return r.Channel.PublishWithContext(
-		ctx, //context
+		ctx,      //context
 		exchange, //exchange
-		key, //routing key
-		false, //mandatory
-		false, //immediate
+		key,      //routing key
+		false,    //mandatory
+		false,    //immediate
 		amqp.Publishing{
-			ContentType: "application/json",
-			Body: body,
-		}
-
+			DeliveryMode: amqp.Persistent,
+			ContentType:  "application/json",
+			Body:         body,
+		},
 	)
 }

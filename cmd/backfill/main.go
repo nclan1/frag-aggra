@@ -19,10 +19,19 @@ func main() {
 	log.Println("Starting one-time backfill job...")
 
 	//grabbing all the environment variables
-	_ = godotenv.Load()
+	_ = godotenv.Load(".env")
+
+	//get the context
 	ctx := context.Background()
 	rmqUrl := os.Getenv("RABBITMQ_URL")
+	if rmqUrl == "" {
+		log.Fatal("RABBITMQ_URL not set")
+	}
+
 	limit := os.Getenv("REDDIT_FETCH_LIMIT")
+	if limit == "" {
+		log.Fatal("REDDIT_FETCH_LIMIT not set")
+	}
 	limitInt, err := strconv.Atoi(limit)
 	if err != nil {
 		log.Printf("invalid REDDIT_FETCH_LIMIT configuration %q, defaulting to 5: %v", limit, err)
@@ -40,6 +49,9 @@ func main() {
 	}
 
 	// Possible TODO: defer close the scraper, look at the documentation.
+	log.Print(rmqUrl)
+
+	//get the rabbitmq client
 	rmq, err := pubsub.New(rmqUrl)
 	if err != nil {
 		log.Fatalf("Failed to innit RabbitMQ Client: %v", err)
@@ -97,7 +109,7 @@ func main() {
 
 	// grab a cut off date
 	cutoffDate := time.Now().Add(-14 * 24 * time.Hour) // 2 weeks ago
-	maxPostLimit := 2000
+	maxPostLimit := 5000
 	totalPublished := 0
 	afterToken := ""
 
@@ -148,7 +160,7 @@ func main() {
 				SellerUsername: post.Author,
 			}
 
-			err := rmq.Publish2JSON("exchange_here", "key_here", job_post, ctx)
+			err := rmq.Publish2JSON(exchange, key, job_post, ctx)
 			if err != nil {
 				log.Printf("Error publishing post to RabbitMQ client with post ID %s: %v", post.ID, err)
 			} else {

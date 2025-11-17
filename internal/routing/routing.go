@@ -6,5 +6,6 @@ const (
 )
 
 const (
-	PostKey = "post_new"
+	PostKey   = "post_new"
+	PostQueue = "post_queue"
 )

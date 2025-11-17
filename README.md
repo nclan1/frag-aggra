@@ -4,9 +4,9 @@ a distributed system written in Go that automatically scrapes, parses, and aggre
 
 ## core problem
 
-i want to find perfumes to buy aftermarket or get decants. Best source is `r/fragranceswap`. Manually going through each listing and searching for the best price size ratio is tedious, hard to track what's for sale and how much it cost. Parsing method for regex is too brittle for the wide variety of post formats. 
+i want to find perfumes to buy aftermarket or get decants. Best source is `r/fragranceswap`. Manually going through each listing and searching for the best price size ratio is tedious, hard to track what's for sale and how much it cost. Parsing method for regex is too brittle for the wide variety of post formats.
 
-this project aims to solve it by building a platform to store a live running database that uses an LLM (via whatever is cheapest llm provider lol, rn using OpenAI) to extract data converting it into a structures JSON. 
+this project aims to solve it by building a platform to store a live running database that uses an LLM (via whatever is cheapest llm provider lol, rn using OpenAI) to extract data converting it into a structures JSON.
 
 
 ## in progress features...
@@ -18,7 +18,7 @@ this project aims to solve it by building a platform to store a live running dat
 
 ## system architecture
 
-producer consumer 
+producer consumer
 
 `[scraper service] -> [RabbitMQ message queue] -> [worker service(s)] -> [postgresql database]`
 

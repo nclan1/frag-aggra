@@ -54,7 +54,7 @@ func (r *RedditScraper) FetchPost(subreddit string, limit int) ([]models.Post, e
 	for _, post := range posts {
 
 		// only include posts that contain [WTS] (case-insensitive) in title or body
-		if !containsWTS(post.Title) && !containsWTS(post.Body) {
+		if !r.ContainsWTS(post.Title) && !r.ContainsWTS(post.Body) {
 			log.Printf("Skipping post %s without [WTS] in title or body", post.ID)
 			continue
 		}
