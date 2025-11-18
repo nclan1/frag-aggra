@@ -10,6 +10,8 @@ import (
 	"frag-aggra/internal/routing"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/joho/godotenv"
 )
@@ -76,76 +78,53 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error consuming and getting channel")
 	}
-	for msg := range msgs {
-		// msg := <-msgs
-		jsonStr := string(msg.Body)
-		var post models.Post
-		if err := json.Unmarshal([]byte(jsonStr), &post); err != nil {
-			log.Printf("bad json: %v", err)
-			msg.Nack(false, false) //drop, dont requeu garbage
-			continue
-		}
-		// for _, post := range job_postings {
-		raw_input := post.Title + "\n" + post.Body
-		log.Printf("Post Title: %s\n", post.Title)
-		log.Printf("Post URL: %s\n", post.URL)
-		log.Printf("Post id: %s\n", post.PostID)
-		log.Printf("Parsing Reddit post content...")
 
-		exists, err := repo.PostExists(ctx, post.PostID)
-		if err != nil {
-			log.Printf("Error checking existence")
-		}
-		if !exists {
-			parsed_listing, err := p.ParsePostContent(context.Background(), raw_input)
+	// add signal handling
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		for msg := range msgs {
+			// msg := <-msgs
+			jsonStr := string(msg.Body)
+			var post models.Post
+			if err := json.Unmarshal([]byte(jsonStr), &post); err != nil {
+				log.Printf("bad json: %v", err)
+				msg.Nack(false, false) //drop, dont requeu garbage
+				continue
+			}
+			// for _, post := range job_postings {
+			raw_input := post.Title + "\n" + post.Body
+			log.Printf("Post Title: %s\n", post.Title)
+			log.Printf("Post URL: %s\n", post.URL)
+			log.Printf("Post id: %s\n", post.PostID)
+			log.Printf("Parsing Reddit post content...")
+
+			exists, err := repo.PostExists(ctx, post.PostID)
 			if err != nil {
-				log.Printf("failed to parse post content: %v", err)
-				msg.Nack(false, true) // re-queue
-				continue
+				log.Printf("Error checking existence")
 			}
-			if parsed_listing == nil {
-				log.Printf("parser returned nil for post %s", post.PostID)
-				msg.Nack(false, true)
-				continue
+			if !exists {
+				parsed_listing, err := p.ParsePostContent(context.Background(), raw_input)
+				if err != nil {
+					log.Printf("failed to parse post content: %v", err)
+					msg.Nack(false, true) // re-queue
+					continue
+				}
+				if parsed_listing == nil {
+					log.Printf("parser returned nil for post %s", post.PostID)
+					msg.Nack(false, true)
+					continue
+				}
+				repo.InsertItem(ctx, post, *parsed_listing)
+				log.Printf("Finished parsing post %s", post.PostID)
+			} else {
+				log.Printf("Already seen, skipping")
 			}
-			repo.InsertItem(ctx, post, *parsed_listing)
-			log.Printf("Finished parsing post %s", post.PostID)
-		} else {
-			log.Printf("Already seen, skipping")
+			msg.Ack(false)
 		}
-		msg.Ack(false)
-	}
-
-	// 	//todo: before parsing, check if post already exists in db by postID
-	// 	//...if exists, skip
-	// 	//...if not, parse and insert
-	// 	parsed_listing, err := p.ParsePostContent(context.Background(), raw_input)
-	// 	if err != nil {
-	// 		log.Printf("failed to parse post content: %v", err)
-	// 		continue
-	// 	}
-	// 	repo.InsertItem(context.Background(), post, *parsed_listing)
-	// }
-
-	// query listing
-	// rows, err := repo.QueryRows(ctx, "SELECT * from listings")
-	// if err != nil {
-	// 	log.Fatalf("failed to query listings: %v", err)
-	// }
-	// defer rows.Close()
-
-	// log.Println("Listings:")
-	// for rows.Next() {
-	// 	var id int
-	// 	var post_id string
-	// 	var name string
-	// 	var size string
-	// 	var price string
-	// 	var created_at time.Time
-	// 	if err := rows.Scan(&id, &post_id, &name, &size, &price, &created_at); err != nil {
-	// 		log.Fatalf("failed to scan row: %v", err)
-	// 	}
-	// 	log.Printf("ID: %d, Post ID: %s, Name: %s, Size: %s, Price: %s, Created At: %s\n", id, post_id, name, size, price, created_at.Format(time.RFC3339))
-	// }
+	}()
+	<-sigChan
+	log.Println("Shutting down gracefully...")
 
 }

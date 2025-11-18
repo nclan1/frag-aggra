@@ -108,7 +108,7 @@ func main() {
 
 	// grab a cut off date
 	cutoffDate := time.Now().Add(-14 * 24 * time.Hour) // 2 weeks ago
-	maxPostLimit := 5000
+	maxPostLimit := 1000
 	totalPublished := 0
 	afterToken := ""
 
