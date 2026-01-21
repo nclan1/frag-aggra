@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"frag-aggra/internal/models"
 	"log"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,6 +14,26 @@ import (
 
 type Repository struct {
 	dbpool *pgxpool.Pool
+}
+
+type ListingFilter struct {
+	MinPrice float64
+	MaxPrice float64
+	Search   string // For name search
+	SortBy   string // "price_asc", "price_desc", "newest"
+	Limit    int
+	Offset   int
+}
+
+// ListingResponse matches the JSON structure we want for the frontend
+type ListingResponse struct {
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Size      string    `json:"size"`
+	Price     string    `json:"price"`
+	Seller    string    `json:"seller"`
+	URL       string    `json:"url"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func New(ctx context.Context, connString string) (*Repository, error) {
