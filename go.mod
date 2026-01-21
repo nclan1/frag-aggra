@@ -3,6 +3,7 @@ module frag-aggra
 go 1.23.1
 
 require (
+	github.com/go-chi/chi/v5 v5.2.4
 	github.com/invopop/jsonschema v0.13.0
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/joho/godotenv v1.5.1
