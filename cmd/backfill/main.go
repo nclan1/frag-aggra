@@ -147,7 +147,7 @@ func main() {
 
 			//check if post has the wts tag to filter it out
 			if !scraper.ContainsWTS(post.Title) && !scraper.ContainsWTS(post.Body) {
-				log.Printf("Skipping post %s without [WTS] in title or body", post.ID)
+				// log.Printf("Skipping post %s without [WTS] in title or body", post.ID)
 				continue
 			}
 
@@ -159,6 +159,7 @@ func main() {
 				SellerUsername: post.Author,
 			}
 
+			log.Printf("Published post ID %s", post.ID)
 			err := rmq.Publish2JSON(exchange, key, job_post, ctx)
 			if err != nil {
 				log.Printf("Error publishing post to RabbitMQ client with post ID %s: %v", post.ID, err)
@@ -171,7 +172,7 @@ func main() {
 			break
 		}
 		// afterToken used as the achor point.
-		afterToken = posts[len(posts)-1].ID
+		afterToken = posts[len(posts)-1].FullID
 		log.Printf("Published %d jobs so far. Sleeping for 2s...", totalPublished)
 		time.Sleep(2 * time.Second) // Being nice to Reddit's API
 	}

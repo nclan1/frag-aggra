@@ -13,5 +13,3 @@ psql -h localhost -U postgres -d fragrance_database
 
 # list actual data from table
 `SELECT * FROM your_table_name_here;`
-
-# list

@@ -103,6 +103,9 @@ func main() {
 			exists, err := repo.PostExists(ctx, post.PostID)
 			if err != nil {
 				log.Printf("Error checking existence")
+				log.Printf("Error checking existence: %v", err) // what's the actual error?
+				msg.Nack(false, true)                           // requeue — db might be temporarily down
+				continue
 			}
 			if !exists {
 				parsed_listing, err := p.ParsePostContent(context.Background(), raw_input)
