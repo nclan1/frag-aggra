@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FragAggra — Fragrance Marketplace</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                --bg: #0d0c0b;
+                --surface: #161412;
+                --card: #1c1a17;
+                --card-hover: #222018;
+                --border: #2e2b25;
+                --border-light: #3d3930;
+                --gold: #c9a84c;
+                --gold-dim: #8a6e2f;
+                --gold-glow: rgba(201, 168, 76, 0.1);
+                --text-primary: #f0ead8;
+                --text-secondary: #8a8070;
+                --text-dim: #5a5448;
+                --error: #c0614a;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background: var(--bg);
+                color: var(--text-primary);
+                font-family: "DM Mono", monospace;
+                font-weight: 300;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+                pointer-events: none;
+                z-index: 9999;
+                opacity: 0.55;
+            }
+
+            /* ─── Header ─── */
+            header {
+                border-bottom: 1px solid var(--border);
+                padding: 2.2rem 3rem 1.8rem;
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                background: rgba(13, 12, 11, 0.94);
+                backdrop-filter: blur(14px);
+                z-index: 100;
+            }
+            .logo-title {
+                font-family: "Cormorant Garamond", serif;
+                font-size: 1.9rem;
+                font-weight: 300;
+                letter-spacing: 0.18em;
+                line-height: 1;
+            }
+            .logo-title span {
+                color: var(--gold);
+            }
+            .logo-sub {
+                font-size: 0.58rem;
+                letter-spacing: 0.38em;
+                color: var(--text-dim);
+                text-transform: uppercase;
+                margin-top: 0.2rem;
+            }
+            .header-meta {
+                font-size: 0.62rem;
+                color: var(--text-dim);
+                letter-spacing: 0.1em;
+                text-align: right;
+                line-height: 1.9;
+            }
+            .header-meta strong {
+                color: var(--gold);
+                font-weight: 400;
+            }
+
+            /* ─── Layout ─── */
+            .layout {
+                display: grid;
+                grid-template-columns: 268px 1fr;
+                min-height: calc(100vh - 88px);
+            }
+
+            /* ─── Sidebar ─── */
+            aside {
+                border-right: 1px solid var(--border);
+                padding: 2.5rem 1.8rem;
+                position: sticky;
+                top: 88px;
+                height: calc(100vh - 88px);
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 2.2rem;
+            }
+            aside::-webkit-scrollbar {
+                width: 2px;
+            }
+            aside::-webkit-scrollbar-thumb {
+                background: var(--border);
+            }
+
+            .filter-section h3 {
+                font-size: 0.52rem;
+                letter-spacing: 0.42em;
+                text-transform: uppercase;
+                color: var(--text-dim);
+                margin-bottom: 1rem;
+                padding-bottom: 0.7rem;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .search-wrap {
+                position: relative;
+            }
+            .search-wrap svg {
+                position: absolute;
+                left: 0.85rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--text-dim);
+                pointer-events: none;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            select {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                color: var(--text-primary);
+                font-family: "DM Mono", monospace;
+                font-size: 0.72rem;
+                font-weight: 300;
+                width: 100%;
+                padding: 0.72rem 0.85rem;
+                outline: none;
+                transition:
+                    border-color 0.2s,
+                    background 0.2s;
+                -moz-appearance: textfield;
+            }
+            input[type="number"]::-webkit-inner-spin-button,
+            input[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+            }
+            .search-wrap input {
+                padding-left: 2.3rem;
+            }
+            input:focus,
+            select:focus {
+                border-color: var(--gold-dim);
+                background: var(--card);
+            }
+            input::placeholder {
+                color: var(--text-dim);
+            }
+
+            .price-row {
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
+                gap: 0.45rem;
+                align-items: center;
+            }
+            .price-sep {
+                font-size: 0.65rem;
+                color: var(--text-dim);
+                text-align: center;
+            }
+
+            select {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a5448'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 0.85rem center;
+                padding-right: 2rem;
+                cursor: pointer;
+            }
+            select option {
+                background: var(--surface);
+            }
+
+            .apply-btn {
+                background: transparent;
+                border: 1px solid var(--gold-dim);
+                color: var(--gold);
+                font-family: "DM Mono", monospace;
+                font-size: 0.58rem;
+                letter-spacing: 0.32em;
+                text-transform: uppercase;
+                padding: 0.82rem;
+                width: 100%;
+                cursor: pointer;
+                transition: all 0.22s;
+                margin-top: auto;
+            }
+            .apply-btn:hover {
+                background: var(--gold-glow);
+                border-color: var(--gold);
+            }
+
+            .reset-btn {
+                background: transparent;
+                border: none;
+                color: var(--text-dim);
+                font-family: "DM Mono", monospace;
+                font-size: 0.58rem;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                padding: 0.45rem;
+                width: 100%;
+                cursor: pointer;
+                transition: color 0.2s;
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+            .reset-btn:hover {
+                color: var(--text-secondary);
+            }
+
+            /* ─── Main ─── */
+            main {
+                padding: 2.5rem 3rem;
+            }
+
+            .status-bar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 2rem;
+                padding-bottom: 1.1rem;
+                border-bottom: 1px solid var(--border);
+            }
+            .status-text {
+                font-size: 0.62rem;
+                color: var(--text-dim);
+                letter-spacing: 0.14em;
+            }
+
+            .pagination-wrap {
+                display: flex;
+                align-items: center;
+                gap: 0.9rem;
+            }
+            .page-btn {
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--text-secondary);
+                font-family: "DM Mono", monospace;
+                font-size: 0.62rem;
+                padding: 0.38rem 0.85rem;
+                cursor: pointer;
+                letter-spacing: 0.12em;
+                transition: all 0.18s;
+            }
+            .page-btn:hover:not(:disabled) {
+                border-color: var(--gold-dim);
+                color: var(--gold);
+            }
+            .page-btn:disabled {
+                opacity: 0.22;
+                cursor: not-allowed;
+            }
+            #page-indicator {
+                font-size: 0.58rem;
+                color: var(--text-dim);
+                letter-spacing: 0.1em;
+            }
+
+            #error-banner {
+                display: none;
+                background: rgba(192, 97, 74, 0.07);
+                border: 1px solid rgba(192, 97, 74, 0.28);
+                padding: 0.85rem 1.1rem;
+                margin-bottom: 1.5rem;
+                font-size: 0.68rem;
+                color: #e07a62;
+                letter-spacing: 0.1em;
+            }
+
+            /* ─── Grid ─── */
+            #listings-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+                gap: 1px;
+                background: var(--border);
+            }
+
+            /* ─── Grouped Card ─── */
+            .group-card {
+                background: var(--card);
+                display: flex;
+                flex-direction: column;
+                animation: fadeUp 0.38s ease both;
+                overflow: hidden;
+            }
+            @keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(7px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .group-header {
+                padding: 1.7rem 1.5rem 1.4rem;
+                cursor: pointer;
+                user-select: none;
+                transition: background 0.18s;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .group-header:hover {
+                background: var(--card-hover);
+            }
+            .group-card.open .group-header {
+                background: var(--card-hover);
+                border-bottom: 1px solid var(--border-light);
+            }
+
+            .gh-top {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 0.8rem;
+            }
+
+            .group-name {
+                font-family: "Cormorant Garamond", serif;
+                font-size: 1.22rem;
+                font-weight: 400;
+                line-height: 1.28;
+                color: var(--text-primary);
+                flex: 1;
+            }
+
+            .chevron {
+                width: 15px;
+                height: 15px;
+                flex-shrink: 0;
+                color: var(--text-dim);
+                margin-top: 0.35rem;
+                transition:
+                    transform 0.25s ease,
+                    color 0.18s;
+            }
+            .group-card.open .chevron {
+                transform: rotate(180deg);
+                color: var(--gold);
+            }
+
+            .gh-bottom {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .listing-count {
+                font-size: 0.58rem;
+                letter-spacing: 0.18em;
+                color: var(--text-dim);
+                text-transform: uppercase;
+            }
+            .listing-count span {
+                color: var(--gold);
+            }
+
+            .price-range {
+                font-size: 0.68rem;
+                color: var(--text-secondary);
+                letter-spacing: 0.06em;
+            }
+
+            /* ─── Expand animation ─── */
+            .group-body {
+                display: grid;
+                grid-template-rows: 0fr;
+                transition: grid-template-rows 0.28s ease;
+            }
+            .group-card.open .group-body {
+                grid-template-rows: 1fr;
+            }
+            .group-body-inner {
+                overflow: hidden;
+            }
+
+            /* ─── Listing row (link to Reddit) ─── */
+            .listing-row {
+                display: flex;
+                align-items: stretch;
+                border-top: 1px solid var(--border);
+                text-decoration: none;
+                transition: background 0.15s;
+            }
+            .listing-row:first-child {
+                border-top: none;
+            }
+            .listing-row:hover {
+                background: rgba(201, 168, 76, 0.05);
+            }
+            .listing-row:hover .row-arrow {
+                color: var(--gold);
+                transform: translateX(3px);
+            }
+
+            .row-main {
+                flex: 1;
+                padding: 1rem 1rem 1rem 1.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 1rem;
+            }
+
+            .row-left {
+                display: flex;
+                flex-direction: column;
+                gap: 0.28rem;
+            }
+
+            .row-size {
+                font-size: 0.78rem;
+                color: var(--text-primary);
+                letter-spacing: 0.04em;
+            }
+            .row-size.no-size {
+                color: var(--text-dim);
+                font-size: 0.65rem;
+                font-style: italic;
+            }
+
+            .row-seller {
+                font-size: 0.57rem;
+                color: var(--text-dim);
+                letter-spacing: 0.1em;
+            }
+            .row-seller span {
+                color: var(--text-secondary);
+            }
+
+            .row-right {
+                display: flex;
+                align-items: center;
+                gap: 0.9rem;
+            }
+
+            .row-price {
+                font-size: 0.82rem;
+                color: var(--gold);
+                letter-spacing: 0.05em;
+                white-space: nowrap;
+            }
+            .row-price.no-price {
+                color: var(--text-dim);
+                font-size: 0.65rem;
+            }
+
+            .row-arrow {
+                width: 12px;
+                height: 12px;
+                color: var(--text-dim);
+                flex-shrink: 0;
+                transition:
+                    transform 0.18s,
+                    color 0.18s;
+            }
+
+            .reddit-badge {
+                padding: 0 1rem;
+                display: flex;
+                align-items: center;
+                border-left: 1px solid var(--border);
+                transition: background 0.15s;
+            }
+            .listing-row:hover .reddit-badge {
+                background: rgba(255, 107, 53, 0.07);
+            }
+            .reddit-icon {
+                color: #ff6b35;
+                opacity: 0.55;
+                transition: opacity 0.15s;
+            }
+            .listing-row:hover .reddit-icon {
+                opacity: 1;
+            }
+
+            /* ─── States ─── */
+            .state-container {
+                grid-column: 1 / -1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 340px;
+                gap: 1rem;
+                background: var(--card);
+            }
+            .state-icon {
+                font-size: 2.2rem;
+                opacity: 0.18;
+            }
+            .state-text {
+                font-size: 0.65rem;
+                color: var(--text-dim);
+                letter-spacing: 0.22em;
+                text-transform: uppercase;
+            }
+
+            .spinner {
+                width: 26px;
+                height: 26px;
+                border: 1.5px solid var(--border);
+                border-top-color: var(--gold-dim);
+                border-radius: 50%;
+                animation: spin 0.75s linear infinite;
+            }
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* ─── Responsive ─── */
+            @media (max-width: 820px) {
+                .layout {
+                    grid-template-columns: 1fr;
+                }
+                aside {
+                    position: static;
+                    height: auto;
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                    padding: 1.5rem;
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    gap: 1.2rem;
+                }
+                .filter-section {
+                    flex: 1;
+                    min-width: 150px;
+                }
+                header {
+                    padding: 1.4rem 1.5rem;
+                }
+                main {
+                    padding: 1.5rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>
+                <div class="logo-title">Frag<span>Aggra</span></div>
+                <div class="logo-sub">Fragrance Marketplace</div>
+            </div>
+            <div class="header-meta">
+                <div><strong id="result-count">—</strong> fragrances</div>
+                <div
+                    id="listing-total-meta"
+                    style="color: var(--text-dim)"
+                ></div>
+            </div>
+        </header>
+
+        <div class="layout">
+            <aside>
+                <div class="filter-section">
+                    <h3>Search</h3>
+                    <div class="search-wrap">
+                        <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input
+                            type="text"
+                            id="search-input"
+                            placeholder="Sauvage, Creed, Oud…"
+                        />
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Price Range</h3>
+                    <div class="price-row">
+                        <input
+                            type="number"
+                            id="min-price"
+                            placeholder="Min $"
+                            min="0"
+                        />
+                        <span class="price-sep">—</span>
+                        <input
+                            type="number"
+                            id="max-price"
+                            placeholder="Max $"
+                            min="0"
+                        />
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Sort By</h3>
+                    <select id="sort-select">
+                        <option value="">Newest First</option>
+                        <option value="price_asc">Price: Low → High</option>
+                        <option value="price_desc">Price: High → Low</option>
+                        <option value="name_asc">Name: A → Z</option>
+                    </select>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Per Page</h3>
+                    <select id="limit-select">
+                        <option value="20">20 listings</option>
+                        <option value="40">40 listings</option>
+                        <option value="80">80 listings</option>
+                    </select>
+                </div>
+
+                <div
+                    style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.5rem;
+                        margin-top: auto;
+                    "
+                >
+                    <button class="apply-btn" id="apply-btn">
+                        Apply Filters
+                    </button>
+                    <button class="reset-btn" id="reset-btn">Reset all</button>
+                </div>
+            </aside>
+
+            <main>
+                <div id="error-banner"></div>
+                <div class="status-bar">
+                    <div class="status-text" id="status-text">
+                        Loading listings…
+                    </div>
+                    <div class="pagination-wrap">
+                        <button class="page-btn" id="prev-btn" disabled>
+                            ← Prev
+                        </button>
+                        <span id="page-indicator"></span>
+                        <button class="page-btn" id="next-btn" disabled>
+                            Next →
+                        </button>
+                    </div>
+                </div>
+                <div id="listings-grid">
+                    <div class="state-container">
+                        <div class="spinner"></div>
+                        <div class="state-text">Fetching listings</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <script>
+            const API_BASE = "/api/v1";
+
+            let state = {
+                page: 1,
+                limit: 20,
+                search: "",
+                minPrice: "",
+                maxPrice: "",
+                sort: "",
+                loading: false,
+            };
+
+            const grid = document.getElementById("listings-grid");
+            const searchInput = document.getElementById("search-input");
+            const minPriceInput = document.getElementById("min-price");
+            const maxPriceInput = document.getElementById("max-price");
+            const sortSelect = document.getElementById("sort-select");
+            const limitSelect = document.getElementById("limit-select");
+            const applyBtn = document.getElementById("apply-btn");
+            const resetBtn = document.getElementById("reset-btn");
+            const prevBtn = document.getElementById("prev-btn");
+            const nextBtn = document.getElementById("next-btn");
+            const resultCount = document.getElementById("result-count");
+            const statusText = document.getElementById("status-text");
+            const errorBanner = document.getElementById("error-banner");
+            const pageIndicator = document.getElementById("page-indicator");
+            const listingTotal = document.getElementById("listing-total-meta");
+
+            // ── Helpers ──────────────────────────────────────────────
+            function esc(s) {
+                return String(s || "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;");
+            }
+
+            function parsePrice(raw) {
+                const n = parseFloat(String(raw || "").replace(/[^0-9.]/g, ""));
+                return isNaN(n) ? null : n;
+            }
+
+            function fmtPrice(raw) {
+                const n = parsePrice(raw);
+                return n != null ? "$" + n.toFixed(0) : null;
+            }
+
+            function buildURL() {
+                const p = new URLSearchParams();
+                p.set("page", state.page);
+                p.set("limit", state.limit);
+                if (state.search) p.set("q", state.search);
+                if (state.minPrice) p.set("min_price", state.minPrice);
+                if (state.maxPrice) p.set("max_price", state.maxPrice);
+                if (state.sort) p.set("sort", state.sort);
+                return `${API_BASE}/listings?${p}`;
+            }
+
+            // ── Group by name ─────────────────────────────────────────
+            // Expects each listing to have: name, price, size, url (reddit post), seller_username
+            function groupListings(listings) {
+                const map = new Map();
+                for (const item of listings) {
+                    const key = (item.name || "Unknown").trim().toLowerCase();
+                    if (!map.has(key))
+                        map.set(key, {
+                            name: (item.name || "Unknown").trim(),
+                            items: [],
+                        });
+                    map.get(key).items.push(item);
+                }
+                return [...map.values()];
+            }
+
+            // ── Render helpers ────────────────────────────────────────
+            function priceRange(items) {
+                const prices = items
+                    .map((i) => parsePrice(i.price))
+                    .filter((n) => n != null);
+                if (!prices.length)
+                    return `<span style="color:var(--text-dim);font-size:0.6rem">price TBD</span>`;
+                const lo = Math.min(...prices),
+                    hi = Math.max(...prices);
+                return `<span class="price-range">${lo === hi ? "$" + lo.toFixed(0) : "$" + lo.toFixed(0) + " – $" + hi.toFixed(0)}</span>`;
+            }
+
+            function renderRow(item) {
+                const price = fmtPrice(item.price);
+                // Support both `url` (from posts join) and fallback `post_url`
+                const href = item.url || item.post_url || null;
+                const tag = href ? "a" : "div";
+                const attrs = href
+                    ? `href="${esc(href)}" target="_blank" rel="noopener noreferrer"`
+                    : "";
+
+                return `
+    <${tag} class="listing-row" ${attrs} onclick="event.stopPropagation()">
+      <div class="row-main">
+        <div class="row-left">
+          <div class="${item.size ? "row-size" : "row-size no-size"}">
+            ${item.size ? esc(item.size) : "size unlisted"}
+          </div>
+          ${
+              item.seller
+                  ? `<div class="row-seller">u/<span>${esc(item.seller)}</span></div>`
+                  : ""
+          }
+        </div>
+        <div class="row-right">
+          <div class="${price ? "row-price" : "row-price no-price"}">${price || "TBD"}</div>
+          ${
+              href
+                  ? `
+          <svg class="row-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>`
+                  : ""
+          }
+        </div>
+      </div>
+      ${
+          href
+              ? `
+      <div class="reddit-badge" title="Open Reddit post">
+        <svg class="reddit-icon" width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+          <circle cx="10" cy="10" r="10"/>
+          <path fill="#0d0c0b" d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.08 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.16.16 0 00-.19.12l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.47-1.5zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.71a3.58 3.58 0 01-2.85.79 3.58 3.58 0 01-2.85-.79.27.27 0 01.38-.38 3.07 3.07 0 002.47.61 3.07 3.07 0 002.47-.61.27.27 0 01.38.38zm-.19-1.71a1 1 0 111-1 1 1 0 01-1 1z"/>
+        </svg>
+      </div>`
+              : ""
+      }
+    </${tag}>`;
+            }
+
+            function renderCard(group, idx) {
+                return `
+    <div class="group-card" style="animation-delay:${Math.min(idx * 40, 500)}ms">
+      <div class="group-header" onclick="this.closest('.group-card').classList.toggle('open')">
+        <div class="gh-top">
+          <div class="group-name">${esc(group.name)}</div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="gh-bottom">
+          <div class="listing-count"><span>${group.items.length}</span> listing${group.items.length !== 1 ? "s" : ""}</div>
+          ${priceRange(group.items)}
+        </div>
+      </div>
+      <div class="group-body">
+        <div class="group-body-inner">
+          ${group.items.map(renderRow).join("")}
+        </div>
+      </div>
+    </div>`;
+            }
+
+            // ── Fetch ─────────────────────────────────────────────────
+            async function fetchListings() {
+                if (state.loading) return;
+                state.loading = true;
+                errorBanner.style.display = "none";
+                grid.innerHTML = `<div class="state-container"><div class="spinner"></div><div class="state-text">Loading</div></div>`;
+                statusText.textContent = "Fetching…";
+
+                try {
+                    const res = await fetch(buildURL());
+                    if (!res.ok) throw new Error(`Server error ${res.status}`);
+                    const json = await res.json();
+                    const listings = json.data || [];
+                    const meta = json.meta || {};
+                    const page = meta.page || state.page;
+
+                    if (!listings.length) {
+                        grid.innerHTML = `<div class="state-container"><div class="state-icon">◈</div><div class="state-text">No listings found</div></div>`;
+                        resultCount.textContent = "0";
+                        listingTotal.textContent = "";
+                        statusText.textContent = "No results";
+                    } else {
+                        const groups = groupListings(listings);
+                        grid.innerHTML = groups
+                            .map((g, i) => renderCard(g, i))
+                            .join("");
+                        resultCount.textContent = groups.length;
+                        listingTotal.textContent = `${listings.length} total listing${listings.length !== 1 ? "s" : ""}`;
+                        statusText.textContent = `${groups.length} fragrance${groups.length !== 1 ? "s" : ""} · ${listings.length} listing${listings.length !== 1 ? "s" : ""}`;
+                    }
+
+                    pageIndicator.textContent = `Page ${page}`;
+                    prevBtn.disabled = page <= 1;
+                    nextBtn.disabled = listings.length < state.limit;
+                } catch (err) {
+                    grid.innerHTML = `<div class="state-container"><div class="state-icon">◈</div><div class="state-text">Error loading</div></div>`;
+                    errorBanner.style.display = "block";
+                    errorBanner.textContent = `⚠  ${err.message || "Failed to load. Is the API running?"}`;
+                    statusText.textContent = "Error";
+                    resultCount.textContent = "—";
+                } finally {
+                    state.loading = false;
+                }
+            }
+
+            // ── Events ────────────────────────────────────────────────
+            applyBtn.addEventListener("click", () => {
+                state.search = searchInput.value.trim();
+                state.minPrice = minPriceInput.value;
+                state.maxPrice = maxPriceInput.value;
+                state.sort = sortSelect.value;
+                state.limit = parseInt(limitSelect.value);
+                state.page = 1;
+                fetchListings();
+            });
+
+            resetBtn.addEventListener("click", () => {
+                searchInput.value = "";
+                minPriceInput.value = "";
+                maxPriceInput.value = "";
+                sortSelect.value = "";
+                limitSelect.value = "20";
+                Object.assign(state, {
+                    search: "",
+                    minPrice: "",
+                    maxPrice: "",
+                    sort: "",
+                    limit: 20,
+                    page: 1,
+                });
+                fetchListings();
+            });
+
+            searchInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") applyBtn.click();
+            });
+
+            let debounce;
+            searchInput.addEventListener("input", () => {
+                clearTimeout(debounce);
+                debounce = setTimeout(() => {
+                    state.search = searchInput.value.trim();
+                    state.page = 1;
+                    fetchListings();
+                }, 420);
+            });
+
+            prevBtn.addEventListener("click", () => {
+                if (state.page > 1) {
+                    state.page--;
+                    fetchListings();
+                    scrollTo(0, 0);
+                }
+            });
+            nextBtn.addEventListener("click", () => {
+                state.page++;
+                fetchListings();
+                scrollTo(0, 0);
+            });
+
+            fetchListings();
+        </script>
+    </body>
+</html>
