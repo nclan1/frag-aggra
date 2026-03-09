@@ -30,7 +30,7 @@ producer consumer
 - **language:** go
 - **data extraction:** gpt-4o
 - **database:** psql (with `pgx` driver)
-- **message qeue:** rabbitmq (planned)
+- **message qeue:** rabbitmq
 - **containerization:** docker & docker compose
 - **reddit api wrapper:** `go-reddit/v2`
 
