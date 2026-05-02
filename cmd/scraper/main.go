@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"frag-aggra/internal/pubsub"
+	"frag-aggra/internal/routing"
 	"frag-aggra/internal/scraper"
 	"log"
 	"os"
@@ -11,42 +14,83 @@ import (
 )
 
 func main() {
-
-	// all it does here is poll reddit, and publish each message to rabbitmq queue for worker to consume
-
-	// TODO: needs to connect to RabbitMQ, set up here
+	_ = godotenv.Load()
 
 	pollInterval := 5 * time.Minute
-	ticker := time.NewTicker(pollInterval)
-
-	_ = godotenv.Load()
-	limit := os.Getenv("REDDIT_FETCH_LIMIT")
-	limitInt, err := strconv.Atoi(limit)
-	if err != nil {
-		log.Printf("invalid REDDIT_FETCH_LIMIT configuration %q, defaulting to 5: %v", limit, err)
-		limitInt = 5
-	}
-	if limitInt <= 0 || limitInt > 100 {
-		log.Printf("REDDIT_FETCH_LIMIT %d out of range [1, 100], defaulting to 5", limitInt)
-		limitInt = 5
-	}
-
-	// init a scraper
-	scraper, err := scraper.New()
-	if err != nil {
-		log.Fatalf("Failed to init reddit scraper: %v", err)
-	}
-
-	log.Println("Scraper service started. Polling every 5 minutes")
-	for {
-		<-ticker.C
-
-		log.Println("Polling latest reddit posts")
-		// Parse however much and input it into job_postings
-		job_postings, err := scraper.FetchPost("fragranceswap", limitInt)
-		if err != nil {
-			log.Fatalf("Failed to fetch posts: %v", err)
+	if v := os.Getenv("POLL_INTERVAL_SECONDS"); v != "" {
+		if secs, err := strconv.Atoi(v); err == nil && secs > 0 {
+			pollInterval = time.Duration(secs) * time.Second
 		}
-
 	}
+
+	limitInt := 25
+	if v := os.Getenv("REDDIT_FETCH_LIMIT"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 100 {
+			limitInt = n
+		} else {
+			log.Printf("invalid REDDIT_FETCH_LIMIT %q, using default %d", v, limitInt)
+		}
+	}
+
+	sc, err := scraper.New()
+	if err != nil {
+		log.Fatalf("failed to init reddit scraper: %v", err)
+	}
+
+	rmqUrl := os.Getenv("RABBITMQ_URL")
+	if rmqUrl == "" {
+		log.Fatal("RABBITMQ_URL not set")
+	}
+
+	rmq, err := pubsub.New(rmqUrl)
+	if err != nil {
+		log.Fatalf("failed to init RabbitMQ client: %v", err)
+	}
+	defer rmq.Close()
+
+	exchange := routing.ExchangePostDirect
+	key := routing.PostKey
+	queue := routing.PostQueue
+
+	if err := rmq.Channel.ExchangeDeclare(exchange, "direct", true, false, false, false, nil); err != nil {
+		log.Fatalf("failed to declare exchange: %v", err)
+	}
+	q, err := rmq.Channel.QueueDeclare(queue, true, false, false, false, nil)
+	if err != nil {
+		log.Fatalf("failed to declare queue: %v", err)
+	}
+	if err := rmq.Channel.QueueBind(q.Name, key, exchange, false, nil); err != nil {
+		log.Fatalf("failed to bind queue: %v", err)
+	}
+
+	ctx := context.Background()
+	ticker := time.NewTicker(pollInterval)
+	defer ticker.Stop()
+
+	log.Printf("scraper started, polling every %s with limit %d", pollInterval, limitInt)
+
+	// poll once immediately on startup, then on each tick
+	poll(ctx, sc, rmq, exchange, key, limitInt)
+	for range ticker.C {
+		poll(ctx, sc, rmq, exchange, key, limitInt)
+	}
+}
+
+func poll(ctx context.Context, sc *scraper.RedditScraper, rmq *pubsub.RabbitMQClient, exchange, key string, limit int) {
+	log.Println("polling r/fragranceswap...")
+	posts, err := sc.FetchPost("fragranceswap", limit)
+	if err != nil {
+		log.Printf("failed to fetch posts: %v", err)
+		return
+	}
+
+	published := 0
+	for _, post := range posts {
+		if err := rmq.Publish2JSON(exchange, key, post, ctx); err != nil {
+			log.Printf("failed to publish post %s: %v", post.PostID, err)
+		} else {
+			published++
+		}
+	}
+	log.Printf("published %d/%d posts to queue", published, len(posts))
 }

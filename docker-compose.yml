@@ -32,9 +32,11 @@ services:
       retries: 5
 
   api:
-    build: .
+    build:
+      context: .
+      args:
+        CMD: api
     container_name: frag-api
-    # No longer needs to be exposed directly — Nginx proxies to it
     expose:
       - "8080"
     environment:
@@ -46,6 +48,41 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      args:
+        CMD: worker
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/fragrance_database
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-frag}:${RABBITMQ_PASSWORD:-your_secure_password}@rabbitmq:5672/
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  scraper:
+    build:
+      context: .
+      args:
+        CMD: scraper
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-frag}:${RABBITMQ_PASSWORD:-your_secure_password}@rabbitmq:5672/
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET}
+      REDDIT_USERNAME: ${REDDIT_USERNAME}
+      REDDIT_PASSWORD: ${REDDIT_PASSWORD}
+      REDDIT_FETCH_LIMIT: ${REDDIT_FETCH_LIMIT:-25}
+      POLL_INTERVAL_SECONDS: ${POLL_INTERVAL_SECONDS:-300}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
 
   frontend:
     image: nginx:alpine
