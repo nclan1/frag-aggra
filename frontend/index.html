@@ -859,6 +859,8 @@
                     const listings = json.data || [];
                     const meta = json.meta || {};
                     const page = meta.page || state.page;
+                    const totalCount = meta.total_count || 0;
+                    const totalPages = Math.max(1, Math.ceil(totalCount / state.limit));
 
                     if (!listings.length) {
                         grid.innerHTML = `<div class="state-container"><div class="state-icon">◈</div><div class="state-text">No listings found</div></div>`;
@@ -870,14 +872,14 @@
                         grid.innerHTML = groups
                             .map((g, i) => renderCard(g, i))
                             .join("");
-                        resultCount.textContent = groups.length;
-                        listingTotal.textContent = `${listings.length} total listing${listings.length !== 1 ? "s" : ""}`;
-                        statusText.textContent = `${groups.length} fragrance${groups.length !== 1 ? "s" : ""} · ${listings.length} listing${listings.length !== 1 ? "s" : ""}`;
+                        resultCount.textContent = totalCount.toLocaleString();
+                        listingTotal.textContent = `across ${totalPages.toLocaleString()} page${totalPages !== 1 ? "s" : ""}`;
+                        statusText.textContent = `${groups.length} fragrance${groups.length !== 1 ? "s" : ""} on this page · ${totalCount.toLocaleString()} total listing${totalCount !== 1 ? "s" : ""}`;
                     }
 
-                    pageIndicator.textContent = `Page ${page}`;
+                    pageIndicator.textContent = `Page ${page} of ${totalPages}`;
                     prevBtn.disabled = page <= 1;
-                    nextBtn.disabled = listings.length < state.limit;
+                    nextBtn.disabled = page >= totalPages;
                 } catch (err) {
                     grid.innerHTML = `<div class="state-container"><div class="state-icon">◈</div><div class="state-text">Error loading</div></div>`;
                     errorBanner.style.display = "block";

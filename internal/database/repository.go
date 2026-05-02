@@ -159,6 +159,54 @@ func (r *Repository) GetListings(ctx context.Context, filter ListingFilter) ([]L
 	return listings, nil
 }
 
+func (r *Repository) CountListings(ctx context.Context, filter ListingFilter) (int, error) {
+	if r.dbpool == nil {
+		return 0, fmt.Errorf("database pool is not initialized")
+	}
+
+	baseQuery := `
+		SELECT COUNT(*)
+		FROM listings l
+		JOIN posts p ON l.post_id = p.id
+		WHERE 1=1
+	`
+
+	args := []any{}
+	argId := 1
+	var conditions []string
+
+	if filter.Search != "" {
+		conditions = append(conditions, fmt.Sprintf("l.name ILIKE $%d", argId))
+		args = append(args, "%"+filter.Search+"%")
+		argId++
+	}
+
+	if filter.MinPrice > 0 {
+		conditions = append(conditions, fmt.Sprintf("l.price LIKE '$$%%' AND CAST(REPLACE(l.price, '$', '') AS NUMERIC) >= $%d", argId))
+		args = append(args, filter.MinPrice)
+		argId++
+	}
+
+	if filter.MaxPrice > 0 {
+		conditions = append(conditions, fmt.Sprintf("l.price LIKE '$$%%' AND CAST(REPLACE(l.price, '$', '') AS NUMERIC) <= $%d", argId))
+		args = append(args, filter.MaxPrice)
+		argId++
+	}
+
+	_ = argId
+
+	if len(conditions) > 0 {
+		baseQuery += " AND " + strings.Join(conditions, " AND ")
+	}
+
+	var count int
+	err := r.dbpool.QueryRow(ctx, baseQuery, args...).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("failed to count listings: %w", err)
+	}
+	return count, nil
+}
+
 // Close closes the database connection pool.
 func (r *Repository) Close() {
 	if r != nil && r.dbpool != nil {

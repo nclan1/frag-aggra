@@ -86,14 +86,19 @@ func main() {
 				return
 			}
 
+			total, err := repo.CountListings(r.Context(), filter)
+			if err != nil {
+				log.Printf("failed to count listings: %v", err)
+			}
+
 			// 4. Return standardized JSON response
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(map[string]any{
 				"data": listings,
 				"meta": map[string]any{
-					"page":  page,
-					"limit": limit,
-					// You could optionally return a "total_count" here by running a COUNT query
+					"page":        page,
+					"limit":       limit,
+					"total_count": total,
 				},
 			})
 		})
