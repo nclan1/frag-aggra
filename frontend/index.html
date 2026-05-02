@@ -5,24 +5,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>FragAggra — Fragrance Marketplace</title>
         <link
-            href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap"
             rel="stylesheet"
         />
         <style>
             :root {
-                --bg: #0d0c0b;
-                --surface: #161412;
-                --card: #1c1a17;
-                --card-hover: #222018;
-                --border: #2e2b25;
-                --border-light: #3d3930;
-                --gold: #c9a84c;
-                --gold-dim: #8a6e2f;
-                --gold-glow: rgba(201, 168, 76, 0.1);
-                --text-primary: #f0ead8;
-                --text-secondary: #8a8070;
-                --text-dim: #5a5448;
-                --error: #c0614a;
+                --bg: #ece7df;          /* newsprint */
+                --paper: #f4f0e7;
+                --ink: #0a0a0a;
+                --ink2: #2a2a2a;
+                --muted: #5e5b54;
+                --rule: #0a0a0a;
+                --accent: #1a3fcb;      /* cobalt */
+                --accent2: #e8e2d2;
+                --error: #c0382b;
+                --green: #3aa86b;
             }
 
             * {
@@ -33,99 +30,266 @@
 
             body {
                 background: var(--bg);
-                color: var(--text-primary);
-                font-family: "DM Mono", monospace;
-                font-weight: 300;
+                color: var(--ink);
+                font-family: 'Space Grotesk', system-ui, sans-serif;
+                font-weight: 400;
+                font-size: 15px;
+                line-height: 1.5;
                 min-height: 100vh;
                 overflow-x: hidden;
             }
 
-            body::before {
-                content: "";
-                position: fixed;
-                inset: 0;
-                background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-                pointer-events: none;
-                z-index: 9999;
-                opacity: 0.55;
+            .mono {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
             }
 
-            /* ─── Header ─── */
+            .display {
+                font-family: 'Space Grotesk', sans-serif;
+                font-weight: 700;
+                letter-spacing: -0.04em;
+                line-height: 0.9;
+            }
+
+            /* ─── HEADER ─── */
             header {
-                border-bottom: 1px solid var(--border);
-                padding: 2.2rem 3rem 1.8rem;
-                display: flex;
-                align-items: flex-end;
-                justify-content: space-between;
                 position: sticky;
                 top: 0;
-                background: rgba(13, 12, 11, 0.94);
-                backdrop-filter: blur(14px);
                 z-index: 100;
+                background: var(--bg);
+                border-bottom: 1.5px solid var(--ink);
             }
-            .logo-title {
-                font-family: "Cormorant Garamond", serif;
-                font-size: 1.9rem;
-                font-weight: 300;
-                letter-spacing: 0.18em;
-                line-height: 1;
-            }
-            .logo-title span {
-                color: var(--gold);
-            }
-            .logo-sub {
-                font-size: 0.58rem;
-                letter-spacing: 0.38em;
-                color: var(--text-dim);
+            .header-inner {
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
+                align-items: center;
+                padding: 14px 32px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
                 text-transform: uppercase;
-                margin-top: 0.2rem;
+            }
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .header-mark {
+                display: inline-block;
+                width: 14px;
+                height: 14px;
+                background: var(--accent);
+                border: 1.5px solid var(--ink);
+            }
+            .header-brand {
+                font-weight: 700;
+            }
+            .header-sub {
+                color: var(--muted);
             }
             .header-meta {
-                font-size: 0.62rem;
-                color: var(--text-dim);
-                letter-spacing: 0.1em;
-                text-align: right;
-                line-height: 1.9;
+                display: flex;
+                justify-content: flex-end;
+                gap: 14px;
+                color: var(--muted);
             }
             .header-meta strong {
-                color: var(--gold);
-                font-weight: 400;
+                color: var(--ink);
+                font-weight: 700;
+            }
+            .header-status {
+                color: var(--green);
+            }
+            .header-nav {
+                display: flex;
+                gap: 4px;
+                color: var(--muted);
             }
 
-            /* ─── Layout ─── */
+            /* ─── HERO ─── */
+            .hero {
+                border-bottom: 1.5px solid var(--ink);
+                position: relative;
+                padding: 32px 32px 24px;
+            }
+            .hero-grid-bg {
+                position: absolute;
+                inset: 0;
+                background-image: linear-gradient(to right, rgba(10, 10, 10, 0.06) 1px, transparent 1px);
+                background-size: 8.333% 100%;
+                pointer-events: none;
+            }
+            .hero-runlabel {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+                position: relative;
+            }
+            .hero-runlabel-l {
+                display: flex;
+                gap: 20px;
+                color: var(--muted);
+            }
+            .hero-runlabel-r {
+                color: var(--muted);
+            }
+            .hero-title-row {
+                display: grid;
+                grid-template-columns: 1.6fr 1fr;
+                gap: 32px;
+                align-items: end;
+                position: relative;
+            }
+            .hero-title {
+                font-family: 'Space Grotesk', sans-serif;
+                font-weight: 700;
+                letter-spacing: -0.04em;
+                line-height: 0.9;
+                font-size: clamp(56px, 9vw, 128px);
+            }
+            .hero-title .ink-block {
+                background: var(--accent);
+                color: var(--bg);
+                padding: 0 0.12em;
+                display: inline-block;
+            }
+            .hero-title-sticker {
+                position: relative;
+                display: inline-block;
+            }
+            .hero-sticker {
+                position: absolute;
+                right: -1.4em;
+                top: 0.2em;
+                font-size: 11px;
+                font-family: 'JetBrains Mono', monospace;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                border: 1.5px solid var(--ink);
+                padding: 4px 8px;
+                background: var(--accent);
+                color: var(--bg);
+                transform: rotate(-3deg);
+                white-space: nowrap;
+                font-weight: 500;
+            }
+            .hero-tagline {
+                font-size: 18px;
+                line-height: 1.3;
+                font-weight: 500;
+                max-width: 380px;
+                color: var(--ink2);
+            }
+            .hero-tagline .accent {
+                color: var(--accent);
+                font-weight: 600;
+            }
+
+            /* ─── TICKER ─── */
+            .ticker {
+                background: var(--ink);
+                color: var(--bg);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                padding: 12px 0;
+                overflow: hidden;
+                white-space: nowrap;
+                border-bottom: 1.5px solid var(--ink);
+            }
+            .ticker-track {
+                display: inline-block;
+                animation: marquee 50s linear infinite;
+            }
+            .ticker-track span {
+                margin-right: 48px;
+            }
+            @keyframes marquee {
+                from { transform: translateX(0); }
+                to { transform: translateX(-50%); }
+            }
+
+            /* ─── LAYOUT ─── */
             .layout {
                 display: grid;
-                grid-template-columns: 268px 1fr;
+                grid-template-columns: 320px 1fr;
                 min-height: calc(100vh - 88px);
             }
 
-            /* ─── Sidebar ─── */
+            /* ─── SIDEBAR ─── */
             aside {
-                border-right: 1px solid var(--border);
-                padding: 2.5rem 1.8rem;
+                border-right: 1.5px solid var(--ink);
+                background: var(--paper);
                 position: sticky;
-                top: 88px;
-                height: calc(100vh - 88px);
+                top: 0;
+                height: 100vh;
                 overflow-y: auto;
                 display: flex;
                 flex-direction: column;
-                gap: 2.2rem;
             }
             aside::-webkit-scrollbar {
-                width: 2px;
+                width: 8px;
+            }
+            aside::-webkit-scrollbar-track {
+                background: var(--paper);
             }
             aside::-webkit-scrollbar-thumb {
-                background: var(--border);
+                background: var(--ink);
             }
 
-            .filter-section h3 {
-                font-size: 0.52rem;
-                letter-spacing: 0.42em;
+            .sidebar-header {
+                padding: 24px 24px 16px;
+                border-bottom: 1.5px solid var(--ink);
+                background: var(--ink);
+                color: var(--bg);
+            }
+            .sidebar-section-num {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
                 text-transform: uppercase;
-                color: var(--text-dim);
-                margin-bottom: 1rem;
-                padding-bottom: 0.7rem;
-                border-bottom: 1px solid var(--border);
+                color: var(--accent2);
+                margin-bottom: 8px;
+            }
+            .sidebar-section-num .accent-text {
+                color: var(--accent);
+                background: var(--bg);
+                padding: 1px 6px;
+                margin-right: 4px;
+            }
+            .sidebar-title {
+                font-family: 'Space Grotesk', sans-serif;
+                font-weight: 700;
+                letter-spacing: -0.03em;
+                line-height: 0.9;
+                font-size: 32px;
+            }
+
+            .filter-section {
+                padding: 20px 24px;
+                border-bottom: 1px dashed rgba(10, 10, 10, 0.25);
+            }
+            .filter-section:last-of-type {
+                border-bottom: 1.5px solid var(--ink);
+            }
+            .filter-label {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: var(--muted);
+                margin-bottom: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .filter-label-num {
+                color: var(--accent);
+                font-weight: 700;
             }
 
             .search-wrap {
@@ -133,270 +297,343 @@
             }
             .search-wrap svg {
                 position: absolute;
-                left: 0.85rem;
+                left: 12px;
                 top: 50%;
                 transform: translateY(-50%);
-                color: var(--text-dim);
+                color: var(--muted);
                 pointer-events: none;
             }
 
             input[type="text"],
             input[type="number"],
             select {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                color: var(--text-primary);
-                font-family: "DM Mono", monospace;
-                font-size: 0.72rem;
-                font-weight: 300;
+                background: var(--bg);
+                border: 1.5px solid var(--ink);
+                color: var(--ink);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 12px;
+                font-weight: 400;
                 width: 100%;
-                padding: 0.72rem 0.85rem;
+                padding: 10px 12px;
                 outline: none;
-                transition:
-                    border-color 0.2s,
-                    background 0.2s;
+                transition: background 0.15s;
                 -moz-appearance: textfield;
+                letter-spacing: 0.02em;
             }
             input[type="number"]::-webkit-inner-spin-button,
             input[type="number"]::-webkit-outer-spin-button {
                 -webkit-appearance: none;
             }
             .search-wrap input {
-                padding-left: 2.3rem;
+                padding-left: 36px;
             }
             input:focus,
             select:focus {
-                border-color: var(--gold-dim);
-                background: var(--card);
+                background: var(--accent2);
+                box-shadow: 3px 3px 0 var(--ink);
+                transform: translate(-2px, -2px);
             }
             input::placeholder {
-                color: var(--text-dim);
+                color: var(--muted);
             }
 
             .price-row {
                 display: grid;
                 grid-template-columns: 1fr auto 1fr;
-                gap: 0.45rem;
+                gap: 6px;
                 align-items: center;
             }
             .price-sep {
-                font-size: 0.65rem;
-                color: var(--text-dim);
-                text-align: center;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 14px;
+                color: var(--ink);
+                font-weight: 700;
             }
 
             select {
                 appearance: none;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a5448'/%3E%3C/svg%3E");
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230a0a0a'/%3E%3C/svg%3E");
                 background-repeat: no-repeat;
-                background-position: right 0.85rem center;
-                padding-right: 2rem;
+                background-position: right 12px center;
+                padding-right: 30px;
                 cursor: pointer;
             }
+            select:focus {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230a0a0a'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+            }
             select option {
-                background: var(--surface);
+                background: var(--bg);
+            }
+
+            .sidebar-actions {
+                padding: 20px 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: auto;
+                background: var(--paper);
             }
 
             .apply-btn {
-                background: transparent;
-                border: 1px solid var(--gold-dim);
-                color: var(--gold);
-                font-family: "DM Mono", monospace;
-                font-size: 0.58rem;
-                letter-spacing: 0.32em;
+                background: var(--accent);
+                border: 1.5px solid var(--ink);
+                color: var(--bg);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
                 text-transform: uppercase;
-                padding: 0.82rem;
+                padding: 14px;
                 width: 100%;
                 cursor: pointer;
-                transition: all 0.22s;
-                margin-top: auto;
+                transition: all 0.15s;
+                box-shadow: 4px 4px 0 var(--ink);
             }
             .apply-btn:hover {
-                background: var(--gold-glow);
-                border-color: var(--gold);
+                transform: translate(-2px, -2px);
+                box-shadow: 6px 6px 0 var(--ink);
+            }
+            .apply-btn:active {
+                transform: translate(0, 0);
+                box-shadow: 0 0 0 var(--ink);
             }
 
             .reset-btn {
-                background: transparent;
-                border: none;
-                color: var(--text-dim);
-                font-family: "DM Mono", monospace;
-                font-size: 0.58rem;
-                letter-spacing: 0.2em;
+                background: var(--bg);
+                border: 1.5px solid var(--ink);
+                color: var(--ink);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 10px;
+                letter-spacing: 0.08em;
                 text-transform: uppercase;
-                padding: 0.45rem;
+                padding: 10px;
                 width: 100%;
                 cursor: pointer;
-                transition: color 0.2s;
-                text-decoration: underline;
-                text-underline-offset: 3px;
+                transition: all 0.15s;
             }
             .reset-btn:hover {
-                color: var(--text-secondary);
+                background: var(--ink);
+                color: var(--bg);
             }
 
-            /* ─── Main ─── */
+            /* ─── MAIN ─── */
             main {
-                padding: 2.5rem 3rem;
+                padding: 0;
+                background: var(--bg);
+                position: relative;
             }
 
             .status-bar {
-                display: flex;
+                display: grid;
+                grid-template-columns: 1fr auto;
                 align-items: center;
-                justify-content: space-between;
-                margin-bottom: 2rem;
-                padding-bottom: 1.1rem;
-                border-bottom: 1px solid var(--border);
+                padding: 20px 32px;
+                border-bottom: 1.5px solid var(--ink);
+                background: var(--paper);
+                gap: 20px;
             }
             .status-text {
-                font-size: 0.62rem;
-                color: var(--text-dim);
-                letter-spacing: 0.14em;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: var(--ink);
+            }
+            .status-text strong {
+                color: var(--accent);
+                font-weight: 700;
             }
 
             .pagination-wrap {
                 display: flex;
                 align-items: center;
-                gap: 0.9rem;
+                gap: 8px;
+                font-family: 'JetBrains Mono', monospace;
             }
             .page-btn {
-                background: transparent;
-                border: 1px solid var(--border);
-                color: var(--text-secondary);
-                font-family: "DM Mono", monospace;
-                font-size: 0.62rem;
-                padding: 0.38rem 0.85rem;
+                background: var(--bg);
+                border: 1.5px solid var(--ink);
+                color: var(--ink);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                font-weight: 500;
+                padding: 8px 14px;
                 cursor: pointer;
-                letter-spacing: 0.12em;
-                transition: all 0.18s;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                transition: all 0.15s;
             }
             .page-btn:hover:not(:disabled) {
-                border-color: var(--gold-dim);
-                color: var(--gold);
+                background: var(--ink);
+                color: var(--bg);
             }
             .page-btn:disabled {
-                opacity: 0.22;
+                opacity: 0.3;
                 cursor: not-allowed;
             }
             #page-indicator {
-                font-size: 0.58rem;
-                color: var(--text-dim);
-                letter-spacing: 0.1em;
+                font-size: 11px;
+                color: var(--muted);
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                padding: 0 8px;
+                white-space: nowrap;
             }
 
             #error-banner {
                 display: none;
-                background: rgba(192, 97, 74, 0.07);
-                border: 1px solid rgba(192, 97, 74, 0.28);
-                padding: 0.85rem 1.1rem;
-                margin-bottom: 1.5rem;
-                font-size: 0.68rem;
-                color: #e07a62;
-                letter-spacing: 0.1em;
+                background: var(--accent);
+                color: var(--bg);
+                border-bottom: 1.5px solid var(--ink);
+                padding: 14px 32px;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                font-weight: 500;
             }
 
-            /* ─── Grid ─── */
+            /* ─── GRID ─── */
+            .grid-wrap {
+                padding: 24px 32px 60px;
+            }
             #listings-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-                gap: 1px;
-                background: var(--border);
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+                gap: 16px;
             }
 
-            /* ─── Grouped Card ─── */
+            /* ─── GROUP CARD ─── */
             .group-card {
-                background: var(--card);
+                background: var(--paper);
+                border: 1.5px solid var(--ink);
                 display: flex;
                 flex-direction: column;
-                animation: fadeUp 0.38s ease both;
-                overflow: hidden;
+                animation: fadeUp 0.4s ease both;
+                position: relative;
+                transition: transform 0.18s, box-shadow 0.18s;
+            }
+            .group-card:hover {
+                transform: translate(-3px, -3px);
+                box-shadow: 6px 6px 0 var(--ink);
             }
             @keyframes fadeUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(7px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+                from { opacity: 0; transform: translateY(8px); }
+                to { opacity: 1; transform: translateY(0); }
             }
 
             .group-header {
-                padding: 1.7rem 1.5rem 1.4rem;
+                padding: 0;
                 cursor: pointer;
                 user-select: none;
-                transition: background 0.18s;
+            }
+
+            .gh-toplabel {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 14px;
+                border-bottom: 1.5px solid var(--ink);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 10px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: var(--muted);
+            }
+            .gh-fignum {
+                color: var(--accent);
+                font-weight: 700;
+            }
+
+            .gh-content {
+                padding: 18px 18px 16px;
                 display: flex;
                 flex-direction: column;
-                gap: 1rem;
-            }
-            .group-header:hover {
-                background: var(--card-hover);
-            }
-            .group-card.open .group-header {
-                background: var(--card-hover);
-                border-bottom: 1px solid var(--border-light);
+                gap: 12px;
             }
 
             .gh-top {
                 display: flex;
                 align-items: flex-start;
                 justify-content: space-between;
-                gap: 0.8rem;
+                gap: 12px;
             }
 
             .group-name {
-                font-family: "Cormorant Garamond", serif;
-                font-size: 1.22rem;
-                font-weight: 400;
-                line-height: 1.28;
-                color: var(--text-primary);
+                font-family: 'Space Grotesk', sans-serif;
+                font-weight: 700;
+                letter-spacing: -0.03em;
+                font-size: 22px;
+                line-height: 1.05;
+                color: var(--ink);
                 flex: 1;
             }
 
             .chevron {
-                width: 15px;
-                height: 15px;
+                width: 20px;
+                height: 20px;
                 flex-shrink: 0;
-                color: var(--text-dim);
-                margin-top: 0.35rem;
-                transition:
-                    transform 0.25s ease,
-                    color 0.18s;
+                color: var(--ink);
+                margin-top: 4px;
+                transition: transform 0.25s ease;
+                border: 1.5px solid var(--ink);
+                background: var(--bg);
+                padding: 2px;
             }
             .group-card.open .chevron {
                 transform: rotate(180deg);
-                color: var(--gold);
+                background: var(--accent);
+                color: var(--bg);
             }
 
             .gh-bottom {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                gap: 8px;
+                flex-wrap: wrap;
             }
 
             .listing-count {
-                font-size: 0.58rem;
-                letter-spacing: 0.18em;
-                color: var(--text-dim);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 10px;
+                letter-spacing: 0.05em;
                 text-transform: uppercase;
+                color: var(--ink);
+                background: var(--accent2);
+                border: 1px solid var(--ink);
+                padding: 3px 8px;
             }
-            .listing-count span {
-                color: var(--gold);
+            .listing-count strong {
+                color: var(--accent);
+                font-weight: 700;
             }
 
             .price-range {
-                font-size: 0.68rem;
-                color: var(--text-secondary);
-                letter-spacing: 0.06em;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 12px;
+                color: var(--ink);
+                font-weight: 700;
+                letter-spacing: 0.02em;
+            }
+            .price-range.tbd {
+                color: var(--muted);
+                font-weight: 400;
+                font-size: 10px;
+                text-transform: uppercase;
             }
 
-            /* ─── Expand animation ─── */
+            /* ─── EXPAND ─── */
             .group-body {
                 display: grid;
                 grid-template-rows: 0fr;
                 transition: grid-template-rows 0.28s ease;
+                border-top: 1.5px solid var(--ink);
+                border-top-style: dashed;
+            }
+            .group-card:not(.open) .group-body {
+                border-top: none;
             }
             .group-card.open .group-body {
                 grid-template-rows: 1fr;
@@ -405,144 +642,270 @@
                 overflow: hidden;
             }
 
-            /* ─── Listing row (link to Reddit) ─── */
+            /* ─── LISTING ROW ─── */
             .listing-row {
                 display: flex;
                 align-items: stretch;
-                border-top: 1px solid var(--border);
+                border-top: 1px dashed rgba(10, 10, 10, 0.4);
                 text-decoration: none;
-                transition: background 0.15s;
+                color: inherit;
+                transition: background 0.12s;
+                background: var(--paper);
             }
             .listing-row:first-child {
                 border-top: none;
             }
             .listing-row:hover {
-                background: rgba(201, 168, 76, 0.05);
+                background: var(--accent);
+                color: var(--bg);
             }
             .listing-row:hover .row-arrow {
-                color: var(--gold);
-                transform: translateX(3px);
+                transform: translateX(4px);
+            }
+            .listing-row:hover .row-seller span,
+            .listing-row:hover .row-seller,
+            .listing-row:hover .row-price,
+            .listing-row:hover .row-price.no-price,
+            .listing-row:hover .row-size,
+            .listing-row:hover .row-size.no-size {
+                color: var(--bg);
             }
 
             .row-main {
                 flex: 1;
-                padding: 1rem 1rem 1rem 1.5rem;
+                padding: 12px 14px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 1rem;
+                gap: 12px;
             }
 
             .row-left {
                 display: flex;
                 flex-direction: column;
-                gap: 0.28rem;
+                gap: 3px;
             }
 
             .row-size {
-                font-size: 0.78rem;
-                color: var(--text-primary);
-                letter-spacing: 0.04em;
+                font-family: 'Space Grotesk', sans-serif;
+                font-weight: 600;
+                font-size: 14px;
+                color: var(--ink);
+                letter-spacing: -0.01em;
             }
             .row-size.no-size {
-                color: var(--text-dim);
-                font-size: 0.65rem;
+                color: var(--muted);
                 font-style: italic;
+                font-weight: 400;
+                font-size: 12px;
             }
 
             .row-seller {
-                font-size: 0.57rem;
-                color: var(--text-dim);
-                letter-spacing: 0.1em;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 10px;
+                color: var(--muted);
+                letter-spacing: 0.03em;
+                text-transform: uppercase;
             }
             .row-seller span {
-                color: var(--text-secondary);
+                color: var(--ink);
+                font-weight: 500;
             }
 
             .row-right {
                 display: flex;
                 align-items: center;
-                gap: 0.9rem;
+                gap: 10px;
             }
 
             .row-price {
-                font-size: 0.82rem;
-                color: var(--gold);
-                letter-spacing: 0.05em;
+                font-family: 'Space Grotesk', sans-serif;
+                font-weight: 700;
+                font-size: 18px;
+                color: var(--accent);
+                letter-spacing: -0.02em;
                 white-space: nowrap;
             }
             .row-price.no-price {
-                color: var(--text-dim);
-                font-size: 0.65rem;
+                color: var(--muted);
+                font-size: 11px;
+                font-weight: 400;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                font-family: 'JetBrains Mono', monospace;
             }
 
             .row-arrow {
-                width: 12px;
-                height: 12px;
-                color: var(--text-dim);
+                width: 14px;
+                height: 14px;
+                color: var(--ink);
                 flex-shrink: 0;
-                transition:
-                    transform 0.18s,
-                    color 0.18s;
+                transition: transform 0.18s;
             }
 
             .reddit-badge {
-                padding: 0 1rem;
+                padding: 0 14px;
                 display: flex;
                 align-items: center;
-                border-left: 1px solid var(--border);
-                transition: background 0.15s;
+                border-left: 1px dashed rgba(10, 10, 10, 0.4);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 9px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: var(--muted);
+                gap: 6px;
             }
             .listing-row:hover .reddit-badge {
-                background: rgba(255, 107, 53, 0.07);
+                color: var(--bg);
+                border-left-color: var(--bg);
             }
             .reddit-icon {
-                color: #ff6b35;
-                opacity: 0.55;
-                transition: opacity 0.15s;
-            }
-            .listing-row:hover .reddit-icon {
-                opacity: 1;
+                width: 14px;
+                height: 14px;
+                flex-shrink: 0;
             }
 
-            /* ─── States ─── */
+            /* ─── STATES ─── */
             .state-container {
                 grid-column: 1 / -1;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                min-height: 340px;
-                gap: 1rem;
-                background: var(--card);
+                min-height: 360px;
+                gap: 16px;
+                background: var(--paper);
+                border: 1.5px solid var(--ink);
+                position: relative;
             }
             .state-icon {
-                font-size: 2.2rem;
-                opacity: 0.18;
+                font-family: 'Space Grotesk', sans-serif;
+                font-weight: 700;
+                font-size: 80px;
+                color: var(--ink);
+                line-height: 1;
+                letter-spacing: -0.05em;
             }
             .state-text {
-                font-size: 0.65rem;
-                color: var(--text-dim);
-                letter-spacing: 0.22em;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.08em;
                 text-transform: uppercase;
+                color: var(--ink);
+                background: var(--accent);
+                color: var(--bg);
+                padding: 6px 14px;
+                border: 1.5px solid var(--ink);
             }
 
             .spinner {
-                width: 26px;
-                height: 26px;
-                border: 1.5px solid var(--border);
-                border-top-color: var(--gold-dim);
-                border-radius: 50%;
-                animation: spin 0.75s linear infinite;
+                width: 36px;
+                height: 36px;
+                border: 3px solid var(--ink);
+                border-top-color: var(--accent);
+                border-radius: 0;
+                animation: spin 0.8s linear infinite;
             }
             @keyframes spin {
-                to {
-                    transform: rotate(360deg);
-                }
+                to { transform: rotate(360deg); }
             }
 
-            /* ─── Responsive ─── */
-            @media (max-width: 820px) {
+            /* ─── FOOTER ─── */
+            .footer-rule {
+                border-top: 1.5px solid var(--ink);
+                background: var(--ink);
+                color: var(--bg);
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                padding: 12px 32px;
+                display: flex;
+                justify-content: space-between;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+            .footer-rule span {
+                color: var(--accent2);
+            }
+
+            /* ─── NAV TABS ─── */
+            .nav-tab {
+                cursor: pointer;
+                transition: color 0.15s;
+            }
+            .nav-tab:hover {
+                color: var(--accent);
+            }
+            .nav-tab.active {
+                color: var(--ink);
+                font-weight: 700;
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+
+            /* ─── FIND VIEW ─── */
+            .find-view {
+                max-width: 640px;
+                margin: 0 auto;
+                padding: 48px 32px 80px;
+            }
+            .find-view-header {
+                border-bottom: 1.5px solid var(--ink);
+                padding-bottom: 20px;
+                margin-bottom: 32px;
+            }
+            .find-view-title {
+                font-family: 'Space Grotesk', sans-serif;
+                font-weight: 700;
+                font-size: 56px;
+                letter-spacing: -0.04em;
+                line-height: 0.9;
+                margin-bottom: 12px;
+            }
+            .find-view-sub {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: var(--muted);
+            }
+            .find-form {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .find-status {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: var(--muted);
+                min-height: 20px;
+                padding: 10px 0;
+            }
+            .find-status.success {
+                color: var(--green);
+            }
+            .find-status.error {
+                color: var(--error);
+            }
+            .find-row {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+            .find-limit-label {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 11px;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                color: var(--muted);
+                white-space: nowrap;
+            }
+
+            /* ─── RESPONSIVE ─── */
+            @media (max-width: 880px) {
                 .layout {
                     grid-template-columns: 1fr;
                 }
@@ -550,44 +913,130 @@
                     position: static;
                     height: auto;
                     border-right: none;
-                    border-bottom: 1px solid var(--border);
-                    padding: 1.5rem;
-                    flex-direction: row;
+                    border-bottom: 1.5px solid var(--ink);
+                }
+                .header-inner {
+                    grid-template-columns: 1fr 1fr;
+                }
+                .header-nav {
+                    display: none;
+                }
+                .hero-title-row {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                }
+                .hero {
+                    padding: 24px 20px 20px;
+                }
+                main, .grid-wrap {
+                    padding-left: 20px;
+                    padding-right: 20px;
+                }
+                .status-bar {
+                    padding: 16px 20px;
                     flex-wrap: wrap;
-                    gap: 1.2rem;
-                }
-                .filter-section {
-                    flex: 1;
-                    min-width: 150px;
-                }
-                header {
-                    padding: 1.4rem 1.5rem;
-                }
-                main {
-                    padding: 1.5rem;
                 }
             }
         </style>
     </head>
     <body>
         <header>
-            <div>
-                <div class="logo-title">Frag<span>Aggra</span></div>
-                <div class="logo-sub">Fragrance Marketplace</div>
-            </div>
-            <div class="header-meta">
-                <div><strong id="result-count">—</strong> fragrances</div>
-                <div
-                    id="listing-total-meta"
-                    style="color: var(--text-dim)"
-                ></div>
+            <div class="header-inner">
+                <div class="header-left">
+                    <span class="header-mark"></span>
+                    <span class="header-brand">fragaggra/mkt</span>
+                    <span class="header-sub">· vol.026</span>
+                </div>
+                <nav class="header-nav">
+                    <span class="nav-tab active" id="tab-catalog">[01] catalog</span>
+                    <span>·</span>
+                    <span class="nav-tab" id="tab-find">[02] find</span>
+                </nav>
+                <div class="header-meta">
+                    <span><strong id="result-count">—</strong> frags</span>
+                    <span>·</span>
+                    <span id="listing-total-meta"></span>
+                    <span>·</span>
+                    <span class="header-status">● live</span>
+                </div>
             </div>
         </header>
 
-        <div class="layout">
+        <section class="hero">
+            <div class="hero-grid-bg"></div>
+            <div class="hero-runlabel">
+                <div class="hero-runlabel-l">
+                    <span>vol/03</span>
+                    <span>iss/01</span>
+                    <span>↳ marketplace</span>
+                </div>
+                <div class="hero-runlabel-r">file: fragaggra.www / 2026</div>
+            </div>
+            <div class="hero-title-row">
+                <h1 class="hero-title">
+                    frag<span class="ink-block">aggra.</span>
+                </h1>
+                <p class="hero-tagline">
+                    a slow page for fragrance hunters. <span class="accent">aggregated reddit listings</span>, grouped by name, priced by sample. no scrolling for hours.
+                </p>
+            </div>
+        </section>
+
+        <div class="ticker">
+            <div class="ticker-track">
+                <span>✦ fragaggra · curated reddit listings</span>
+                <span>✦ updated continuously</span>
+                <span>✦ direct seller links</span>
+                <span>✦ samples · decants · full bottles</span>
+                <span>✦ fragaggra · curated reddit listings</span>
+                <span>✦ updated continuously</span>
+                <span>✦ direct seller links</span>
+                <span>✦ samples · decants · full bottles</span>
+            </div>
+        </div>
+
+        <div class="find-view" id="find-view" style="display:none">
+            <div class="find-view-header">
+                <div class="find-view-title">find a frag.</div>
+                <p class="find-view-sub">search reddit · [wts] posts get queued · check catalog in a moment</p>
+            </div>
+            <div class="find-form">
+                <div class="filter-label">
+                    <span><span class="filter-label-num">01</span> / keyword</span>
+                </div>
+                <div class="search-wrap">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input id="find-input" type="text" placeholder="e.g. tobacco vanille, oud wood..." class="filter-input" />
+                </div>
+                <div class="find-row">
+                    <span class="find-limit-label">max results</span>
+                    <select id="find-limit" class="filter-input" style="width:auto">
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <button id="find-btn" class="apply-btn">search reddit →</button>
+                <div id="find-status" class="find-status"></div>
+            </div>
+        </div>
+
+        <div class="layout" id="catalog-view">
             <aside>
+                <div class="sidebar-header">
+                    <div class="sidebar-section-num">
+                        <span class="accent-text">§</span>filter / sort
+                    </div>
+                    <div class="sidebar-title">narrow it<br/>down.</div>
+                </div>
+
                 <div class="filter-section">
-                    <h3>Search</h3>
+                    <div class="filter-label">
+                        <span><span class="filter-label-num">01</span> / search</span>
+                        <span>q</span>
+                    </div>
                     <div class="search-wrap">
                         <svg
                             width="13"
@@ -603,42 +1052,51 @@
                         <input
                             type="text"
                             id="search-input"
-                            placeholder="Sauvage, Creed, Oud…"
+                            placeholder="sauvage, creed, oud..."
                         />
                     </div>
                 </div>
 
                 <div class="filter-section">
-                    <h3>Price Range</h3>
+                    <div class="filter-label">
+                        <span><span class="filter-label-num">02</span> / price</span>
+                        <span>usd</span>
+                    </div>
                     <div class="price-row">
                         <input
                             type="number"
                             id="min-price"
-                            placeholder="Min $"
+                            placeholder="min $"
                             min="0"
                         />
-                        <span class="price-sep">—</span>
+                        <span class="price-sep">→</span>
                         <input
                             type="number"
                             id="max-price"
-                            placeholder="Max $"
+                            placeholder="max $"
                             min="0"
                         />
                     </div>
                 </div>
 
                 <div class="filter-section">
-                    <h3>Sort By</h3>
+                    <div class="filter-label">
+                        <span><span class="filter-label-num">03</span> / sort</span>
+                        <span>order</span>
+                    </div>
                     <select id="sort-select">
-                        <option value="">Newest First</option>
-                        <option value="price_asc">Price: Low → High</option>
-                        <option value="price_desc">Price: High → Low</option>
-                        <option value="name_asc">Name: A → Z</option>
+                        <option value="">newest first</option>
+                        <option value="price_asc">price: low → high</option>
+                        <option value="price_desc">price: high → low</option>
+                        <option value="name_asc">name: a → z</option>
                     </select>
                 </div>
 
                 <div class="filter-section">
-                    <h3>Per Page</h3>
+                    <div class="filter-label">
+                        <span><span class="filter-label-num">04</span> / per page</span>
+                        <span>n</span>
+                    </div>
                     <select id="limit-select">
                         <option value="20">20 listings</option>
                         <option value="40">40 listings</option>
@@ -646,18 +1104,11 @@
                     </select>
                 </div>
 
-                <div
-                    style="
-                        display: flex;
-                        flex-direction: column;
-                        gap: 0.5rem;
-                        margin-top: auto;
-                    "
-                >
+                <div class="sidebar-actions">
                     <button class="apply-btn" id="apply-btn">
-                        Apply Filters
+                        [+] apply filters
                     </button>
-                    <button class="reset-btn" id="reset-btn">Reset all</button>
+                    <button class="reset-btn" id="reset-btn">↻ reset all</button>
                 </div>
             </aside>
 
@@ -665,23 +1116,32 @@
                 <div id="error-banner"></div>
                 <div class="status-bar">
                     <div class="status-text" id="status-text">
-                        Loading listings…
+                        ◷ loading listings…
                     </div>
                     <div class="pagination-wrap">
                         <button class="page-btn" id="prev-btn" disabled>
-                            ← Prev
+                            ← prev
                         </button>
                         <span id="page-indicator"></span>
                         <button class="page-btn" id="next-btn" disabled>
-                            Next →
+                            next →
                         </button>
                     </div>
                 </div>
-                <div id="listings-grid">
-                    <div class="state-container">
-                        <div class="spinner"></div>
-                        <div class="state-text">Fetching listings</div>
+
+                <div class="grid-wrap">
+                    <div id="listings-grid">
+                        <div class="state-container">
+                            <div class="spinner"></div>
+                            <div class="state-text">fetching listings</div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="footer-rule">
+                    <span>© fragaggra · 2026</span>
+                    <span>set in space grotesk + jetbrains mono</span>
+                    <span>v.03 / printed on the web</span>
                 </div>
             </main>
         </div>
@@ -715,7 +1175,7 @@
             const pageIndicator = document.getElementById("page-indicator");
             const listingTotal = document.getElementById("listing-total-meta");
 
-            // ── Helpers ──────────────────────────────────────────────
+            // ── Helpers ──
             function esc(s) {
                 return String(s || "")
                     .replace(/&/g, "&amp;")
@@ -745,8 +1205,7 @@
                 return `${API_BASE}/listings?${p}`;
             }
 
-            // ── Group by name ─────────────────────────────────────────
-            // Expects each listing to have: name, price, size, url (reddit post), seller_username
+            // ── Group by name ──
             function groupListings(listings) {
                 const map = new Map();
                 for (const item of listings) {
@@ -761,13 +1220,13 @@
                 return [...map.values()];
             }
 
-            // ── Render helpers ────────────────────────────────────────
+            // ── Render helpers ──
             function priceRange(items) {
                 const prices = items
                     .map((i) => parsePrice(i.price))
                     .filter((n) => n != null);
                 if (!prices.length)
-                    return `<span style="color:var(--text-dim);font-size:0.6rem">price TBD</span>`;
+                    return `<span class="price-range tbd">price tbd</span>`;
                 const lo = Math.min(...prices),
                     hi = Math.max(...prices);
                 return `<span class="price-range">${lo === hi ? "$" + lo.toFixed(0) : "$" + lo.toFixed(0) + " – $" + hi.toFixed(0)}</span>`;
@@ -775,7 +1234,6 @@
 
             function renderRow(item) {
                 const price = fmtPrice(item.price);
-                // Support both `url` (from posts join) and fallback `post_url`
                 const href = item.url || item.post_url || null;
                 const tag = href ? "a" : "div";
                 const attrs = href
@@ -796,7 +1254,7 @@
           }
         </div>
         <div class="row-right">
-          <div class="${price ? "row-price" : "row-price no-price"}">${price || "TBD"}</div>
+          <div class="${price ? "row-price" : "row-price no-price"}">${price || "tbd"}</div>
           ${
               href
                   ? `
@@ -810,11 +1268,12 @@
       ${
           href
               ? `
-      <div class="reddit-badge" title="Open Reddit post">
-        <svg class="reddit-icon" width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-          <circle cx="10" cy="10" r="10"/>
-          <path fill="#0d0c0b" d="M16.67 10a1.46 1.46 0 00-2.47-1 7.12 7.12 0 00-3.85-1.23l.65-3.08 2.13.45a1 1 0 101.07-1 1 1 0 00-.96.68l-2.38-.5a.16.16 0 00-.19.12l-.73 3.44a7.14 7.14 0 00-3.89 1.23 1.46 1.46 0 10-1.61 2.39 2.87 2.87 0 000 .44c0 2.24 2.61 4.06 5.83 4.06s5.83-1.82 5.83-4.06a2.87 2.87 0 000-.44 1.46 1.46 0 00.47-1.5zM7.27 11a1 1 0 111 1 1 1 0 01-1-1zm5.58 2.71a3.58 3.58 0 01-2.85.79 3.58 3.58 0 01-2.85-.79.27.27 0 01.38-.38 3.07 3.07 0 002.47.61 3.07 3.07 0 002.47-.61.27.27 0 01.38.38zm-.19-1.71a1 1 0 111-1 1 1 0 01-1 1z"/>
+      <div class="reddit-badge" title="open reddit post">
+        <svg class="reddit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18"/>
+          <path d="M9 9h6M9 13h6M9 17h3"/>
         </svg>
+        rdt
       </div>`
               : ""
       }
@@ -822,18 +1281,25 @@
             }
 
             function renderCard(group, idx) {
+                const fignum = String(idx + 1).padStart(2, '0');
                 return `
-    <div class="group-card" style="animation-delay:${Math.min(idx * 40, 500)}ms">
+    <div class="group-card" style="animation-delay:${Math.min(idx * 30, 400)}ms">
       <div class="group-header" onclick="this.closest('.group-card').classList.toggle('open')">
-        <div class="gh-top">
-          <div class="group-name">${esc(group.name)}</div>
-          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
+        <div class="gh-toplabel">
+          <span><span class="gh-fignum">fig.${fignum}</span> · fragrance</span>
+          <span>${group.items.length} ↗</span>
         </div>
-        <div class="gh-bottom">
-          <div class="listing-count"><span>${group.items.length}</span> listing${group.items.length !== 1 ? "s" : ""}</div>
-          ${priceRange(group.items)}
+        <div class="gh-content">
+          <div class="gh-top">
+            <div class="group-name">${esc(group.name)}</div>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          <div class="gh-bottom">
+            <div class="listing-count"><strong>${group.items.length}</strong> listing${group.items.length !== 1 ? "s" : ""}</div>
+            ${priceRange(group.items)}
+          </div>
         </div>
       </div>
       <div class="group-body">
@@ -844,17 +1310,17 @@
     </div>`;
             }
 
-            // ── Fetch ─────────────────────────────────────────────────
+            // ── Fetch ──
             async function fetchListings() {
                 if (state.loading) return;
                 state.loading = true;
                 errorBanner.style.display = "none";
-                grid.innerHTML = `<div class="state-container"><div class="spinner"></div><div class="state-text">Loading</div></div>`;
-                statusText.textContent = "Fetching…";
+                grid.innerHTML = `<div class="state-container"><div class="spinner"></div><div class="state-text">loading</div></div>`;
+                statusText.textContent = "◷ fetching…";
 
                 try {
                     const res = await fetch(buildURL());
-                    if (!res.ok) throw new Error(`Server error ${res.status}`);
+                    if (!res.ok) throw new Error(`server error ${res.status}`);
                     const json = await res.json();
                     const listings = json.data || [];
                     const meta = json.meta || {};
@@ -863,35 +1329,35 @@
                     const totalPages = Math.max(1, Math.ceil(totalCount / state.limit));
 
                     if (!listings.length) {
-                        grid.innerHTML = `<div class="state-container"><div class="state-icon">◈</div><div class="state-text">No listings found</div></div>`;
+                        grid.innerHTML = `<div class="state-container"><div class="state-icon">◈</div><div class="state-text">no listings found</div></div>`;
                         resultCount.textContent = "0";
                         listingTotal.textContent = "";
-                        statusText.textContent = "No results";
+                        statusText.textContent = "◌ no results";
                     } else {
                         const groups = groupListings(listings);
                         grid.innerHTML = groups
                             .map((g, i) => renderCard(g, i))
                             .join("");
                         resultCount.textContent = totalCount.toLocaleString();
-                        listingTotal.textContent = `across ${totalPages.toLocaleString()} page${totalPages !== 1 ? "s" : ""}`;
-                        statusText.textContent = `${groups.length} fragrance${groups.length !== 1 ? "s" : ""} on this page · ${totalCount.toLocaleString()} total listing${totalCount !== 1 ? "s" : ""}`;
+                        listingTotal.textContent = `${totalPages.toLocaleString()} pg`;
+                        statusText.innerHTML = `▼ <strong>${groups.length}</strong> fragrance${groups.length !== 1 ? "s" : ""} on this page · <strong>${totalCount.toLocaleString()}</strong> total listing${totalCount !== 1 ? "s" : ""}`;
                     }
 
-                    pageIndicator.textContent = `Page ${page} of ${totalPages}`;
+                    pageIndicator.textContent = `[ pg ${page} / ${totalPages} ]`;
                     prevBtn.disabled = page <= 1;
                     nextBtn.disabled = page >= totalPages;
                 } catch (err) {
-                    grid.innerHTML = `<div class="state-container"><div class="state-icon">◈</div><div class="state-text">Error loading</div></div>`;
+                    grid.innerHTML = `<div class="state-container"><div class="state-icon">◈</div><div class="state-text">error loading</div></div>`;
                     errorBanner.style.display = "block";
-                    errorBanner.textContent = `⚠  ${err.message || "Failed to load. Is the API running?"}`;
-                    statusText.textContent = "Error";
+                    errorBanner.textContent = `⚠ ${err.message || "failed to load. is the api running?"}`;
+                    statusText.textContent = "✕ error";
                     resultCount.textContent = "—";
                 } finally {
                     state.loading = false;
                 }
             }
 
-            // ── Events ────────────────────────────────────────────────
+            // ── Events ──
             applyBtn.addEventListener("click", () => {
                 state.search = searchInput.value.trim();
                 state.minPrice = minPriceInput.value;
@@ -947,6 +1413,63 @@
             });
 
             fetchListings();
+
+            // ── Tab switching ──
+            const catalogView = document.getElementById("catalog-view");
+            const findView = document.getElementById("find-view");
+            const tabCatalog = document.getElementById("tab-catalog");
+            const tabFind = document.getElementById("tab-find");
+
+            tabCatalog.addEventListener("click", () => {
+                catalogView.style.display = "";
+                findView.style.display = "none";
+                tabCatalog.classList.add("active");
+                tabFind.classList.remove("active");
+            });
+
+            tabFind.addEventListener("click", () => {
+                catalogView.style.display = "none";
+                findView.style.display = "";
+                tabFind.classList.add("active");
+                tabCatalog.classList.remove("active");
+            });
+
+            // ── Find / search ──
+            const findInput = document.getElementById("find-input");
+            const findBtn = document.getElementById("find-btn");
+            const findStatus = document.getElementById("find-status");
+            const findLimit = document.getElementById("find-limit");
+
+            async function searchFragrance() {
+                const keyword = findInput.value.trim();
+                if (!keyword) return;
+
+                findBtn.disabled = true;
+                findStatus.className = "find-status";
+                findStatus.textContent = "◷ searching reddit…";
+
+                try {
+                    const res = await fetch("/api/v1/search", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ keyword, limit: parseInt(findLimit.value) }),
+                    });
+                    if (!res.ok) throw new Error(`server error ${res.status}`);
+                    const json = await res.json();
+                    findStatus.className = "find-status success";
+                    findStatus.innerHTML = `✓ found <strong>${json.found}</strong> [wts] post${json.found !== 1 ? "s" : ""} · queued <strong>${json.queued}</strong> for processing · check the catalog in a moment`;
+                } catch (err) {
+                    findStatus.className = "find-status error";
+                    findStatus.textContent = `✕ ${err.message}`;
+                } finally {
+                    findBtn.disabled = false;
+                }
+            }
+
+            findBtn.addEventListener("click", searchFragrance);
+            findInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") searchFragrance();
+            });
         </script>
     </body>
 </html>

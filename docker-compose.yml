@@ -43,6 +43,10 @@ services:
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/fragrance_database
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-frag}:${RABBITMQ_PASSWORD:-your_secure_password}@rabbitmq:5672/
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      REDDIT_CLIENT_ID: ${REDDIT_CLIENT_ID}
+      REDDIT_CLIENT_SECRET: ${REDDIT_CLIENT_SECRET}
+      REDDIT_USERNAME: ${REDDIT_USERNAME}
+      REDDIT_PASSWORD: ${REDDIT_PASSWORD}
     depends_on:
       db:
         condition: service_healthy

@@ -88,6 +88,37 @@ func (r *RedditScraper) FetchPaginatedPosts(ctx context.Context, subreddit strin
 
 }
 
+func (r *RedditScraper) SearchPosts(ctx context.Context, subreddit, keyword string, limit int) ([]models.Post, error) {
+	if limit <= 0 {
+		limit = 25
+	}
+
+	posts, _, err := r.client.Subreddit.SearchPosts(ctx, keyword, subreddit, &reddit.ListPostSearchOptions{
+		ListPostOptions: reddit.ListPostOptions{
+			ListOptions: reddit.ListOptions{Limit: limit},
+		},
+		Sort: "new",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var results []models.Post
+	for _, post := range posts {
+		if !r.ContainsWTS(post.Title) && !r.ContainsWTS(post.Body) {
+			continue
+		}
+		results = append(results, models.Post{
+			PostID:         post.ID,
+			URL:            post.URL,
+			Title:          post.Title,
+			Body:           post.Body,
+			SellerUsername: post.Author,
+		})
+	}
+	return results, nil
+}
+
 func (r *RedditScraper) ContainsWTS(s string) bool {
 	return wtsRe.MatchString(s)
 }

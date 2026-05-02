@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"frag-aggra/internal/database"
+	"frag-aggra/internal/pubsub"
+	"frag-aggra/internal/routing"
+	"frag-aggra/internal/scraper"
 	"log"
 	"net/http"
 	"os"
@@ -44,6 +47,39 @@ func main() {
 	}
 	log.Println("Database connection verified")
 	defer repo.Close()
+
+	// Optional: Reddit scraper + RabbitMQ for the search endpoint
+	var sc *scraper.RedditScraper
+	var rmq *pubsub.RabbitMQClient
+
+	if os.Getenv("REDDIT_CLIENT_ID") != "" {
+		if s, err := scraper.New(); err != nil {
+			log.Printf("warning: failed to init reddit scraper: %v", err)
+		} else {
+			sc = s
+		}
+	}
+
+	if rmqURL := os.Getenv("RABBITMQ_URL"); rmqURL != "" && sc != nil {
+		if r, err := pubsub.New(rmqURL); err != nil {
+			log.Printf("warning: failed to init RabbitMQ client: %v", err)
+		} else {
+			rmq = r
+			defer rmq.Close()
+			if err := rmq.Channel.ExchangeDeclare(routing.ExchangePostDirect, "direct", true, false, false, false, nil); err != nil {
+				log.Printf("warning: failed to declare exchange: %v", err)
+				rmq = nil
+			} else if q, err := rmq.Channel.QueueDeclare(routing.PostQueue, true, false, false, false, nil); err != nil {
+				log.Printf("warning: failed to declare queue: %v", err)
+				rmq = nil
+			} else if err := rmq.Channel.QueueBind(q.Name, routing.PostKey, routing.ExchangePostDirect, false, nil); err != nil {
+				log.Printf("warning: failed to bind queue: %v", err)
+				rmq = nil
+			} else {
+				log.Println("Search feature ready")
+			}
+		}
+	}
 
 	r.Route("/api/v1", func(r chi.Router) {
 
@@ -100,6 +136,48 @@ func main() {
 					"limit":       limit,
 					"total_count": total,
 				},
+			})
+		})
+
+		r.Post("/search", func(w http.ResponseWriter, r *http.Request) {
+			if sc == nil || rmq == nil {
+				http.Error(w, "search not available: missing reddit or rabbitmq config", http.StatusServiceUnavailable)
+				return
+			}
+
+			var req struct {
+				Keyword string `json:"keyword"`
+				Limit   int    `json:"limit"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Keyword == "" {
+				http.Error(w, "invalid request: keyword required", http.StatusBadRequest)
+				return
+			}
+			if req.Limit <= 0 || req.Limit > 100 {
+				req.Limit = 25
+			}
+
+			posts, err := sc.SearchPosts(r.Context(), "fragranceswap", req.Keyword, req.Limit)
+			if err != nil {
+				log.Printf("failed to search reddit: %v", err)
+				http.Error(w, "failed to search reddit", http.StatusInternalServerError)
+				return
+			}
+
+			queued := 0
+			for _, post := range posts {
+				if err := rmq.Publish2JSON(routing.ExchangePostDirect, routing.PostKey, post, r.Context()); err != nil {
+					log.Printf("failed to publish post %s: %v", post.PostID, err)
+				} else {
+					queued++
+				}
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]any{
+				"queued":  queued,
+				"found":   len(posts),
+				"keyword": req.Keyword,
 			})
 		})
 	})

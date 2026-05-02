@@ -98,7 +98,7 @@ func (p *Parser) ParsePostContent(ctx context.Context, postContent string) (*mod
 				JSONSchema: schemaParam,
 			},
 		},
-		Model: openai.ChatModelGPT4o2024_08_06,
+		Model: openai.gpt-5-nano-2025-08-07,
 	})
 
 	if err != nil {

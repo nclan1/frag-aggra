@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -108,7 +109,9 @@ func main() {
 				continue
 			}
 			if !exists {
-				parsed_listing, err := p.ParsePostContent(context.Background(), raw_input)
+				parseCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+				parsed_listing, err := p.ParsePostContent(parseCtx, raw_input)
+				cancel()
 				if err != nil {
 					log.Printf("failed to parse post content: %v", err)
 					msg.Nack(false, true) // re-queue
