@@ -98,11 +98,15 @@ func (p *Parser) ParsePostContent(ctx context.Context, postContent string) (*mod
 				JSONSchema: schemaParam,
 			},
 		},
-		Model: openai.gpt-5-nano-2025-08-07,
+		Model: "gpt-5-nano-2025-08-07",
 	})
 
 	if err != nil {
 		return nil, err
+	}
+
+	if len(resp.Choices) == 0 {
+		return nil, errors.New("no choices returned from OpenAI")
 	}
 
 	var listing models.FragranceListing

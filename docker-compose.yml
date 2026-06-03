@@ -92,10 +92,12 @@ services:
     image: nginx:alpine
     container_name: frag-frontend
     ports:
-      - "80:80" # Main entry point — visit http://localhost
+      - "80:80"
+      - "443:443"
     volumes:
       - ./frontend/index.html:/usr/share/nginx/html/index.html:ro
       - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - api
 

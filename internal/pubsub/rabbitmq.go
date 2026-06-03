@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -13,27 +14,30 @@ type RabbitMQClient struct {
 	Channel *amqp.Channel
 }
 
-func failOnError(err error, msg string) {
-	if err != nil {
-		log.Panicf("%s: %s", msg, err)
-	}
-}
-
-// Return the RabbitMQClient to do the operations
 func New(connStr string) (*RabbitMQClient, error) {
-
 	if connStr == "" {
 		log.Fatalf("Unable to Dial, no string to dial to")
 	}
 
-	conn, err := amqp.Dial(connStr)
-	//maybe have it return instead
-	failOnError(err, "Failed to connect to RabbitMQ")
+	var conn *amqp.Connection
+	var err error
+	for i := range 10 {
+		conn, err = amqp.Dial(connStr)
+		if err == nil {
+			break
+		}
+		log.Printf("RabbitMQ not ready, retrying in 3s... (%d/10)", i+1)
+		time.Sleep(3 * time.Second)
+	}
+	if err != nil {
+		return nil, err
+	}
 
 	ch, err := conn.Channel()
-	// correct message or no?
-	// have it return here too i guess
-	failOnError(err, "Failed to get Channel")
+	if err != nil {
+		conn.Close()
+		return nil, err
+	}
 
 	return &RabbitMQClient{
 		Conn:    conn,

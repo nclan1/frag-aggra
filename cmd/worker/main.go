@@ -109,7 +109,7 @@ func main() {
 				continue
 			}
 			if !exists {
-				parseCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+				parseCtx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 				parsed_listing, err := p.ParsePostContent(parseCtx, raw_input)
 				cancel()
 				if err != nil {
